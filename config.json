@@ -6,6 +6,7 @@
     "allowInbox": true,
     "autoClean": false,
     "adminOnly": true,
+    "adminIDs": ["61571633498434"]
     "keyAdminOnly": "",
     "commandDisabled": [],
     "eventDisabled": [],
