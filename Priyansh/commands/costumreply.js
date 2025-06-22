@@ -13,7 +13,7 @@ function saveReplies(data) {
 module.exports.config = {
   name: "customreply",
   version: "1.0.0",
-  hasPermssion: 1, // Only admins can set replies
+  hasPermssion: 2, // Only admins can set replies
   credits: "Custom by You",
   description: "Add or manage auto custom replies per group",
   commandCategory: "Group Settings",
