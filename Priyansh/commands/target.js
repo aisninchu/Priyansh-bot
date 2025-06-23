@@ -28,10 +28,10 @@ module.exports.handleEvent = async ({ event, api }) => {
 
   if (targets.includes(senderID)) {
     const galis = [
-      "Chup be chomu 🤡", "Kya be ullu ke patthe!", "Tu fir aa gaya bakchodi karne? 😒",
-      "Tera dimaag ghaas charne gaya hai kya?", "Oye chutiyapanti band kar 😑", 
-      "Abe saand, tu hi reh gaya tha", "Gaand mara le fir bhi sudhar ja 😂", 
-      "Itna mat bol, tere jaise hazaar dekhe hain", "Maa kasam irritate karta hai tu"
+      "Chup be chomu 🤡", "teri ma ka bhosda tu msg mt kr sale!", "teri ma ke sath sex hogya ? 😒",
+      "JA ma chuda dimaag mt kharab kr bhen ke lode?", "papa ko gali ni dete MADRXHOD  😑", 
+      "chup sale randi ke picllee", "teri ma ki chut faar dunga sale randi ke bche  😂", 
+      "teri randi ma ka bhosda faar dunga", "teri ma ka bhosda bhag bhenchod mayank tera baap hai"
     ];
 
     const gali = galis[Math.floor(Math.random() * galis.length)];
