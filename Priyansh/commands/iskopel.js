@@ -1,14 +1,14 @@
 const fs = require("fs");
 const path = require("path");
 
-let isRunning = {}; // thread-wise loop tracker
+let isRunning = {}; // Track loop status per group (threadID)
 
 module.exports.config = {
   name: "iskopel",
-  version: "4.0.0",
-  hasPermssion: 2, // only bot owner
+  version: "5.0.0",
+  hasPermssion: 2, // Only bot owner
   credits: "You",
-  description: "Loop np.txt messages endlessly until stopped",
+  description: "Loop np.txt messages in all groups independently",
   commandCategory: "tools",
   usages: "/iskopel [delay] [prefix] | stop",
   cooldowns: 5
@@ -17,53 +17,49 @@ module.exports.config = {
 module.exports.run = async ({ api, event, args }) => {
   const { threadID } = event;
 
-  // Path to np.txt relative to bot root
   const filePath = path.resolve("modules/commands/np.txt");
 
-  // Stop loop command
+  // 🛑 STOP Command
   if (args[0] === "stop") {
     if (isRunning[threadID]) {
       isRunning[threadID] = false;
-      return api.sendMessage("🛑 Loop stopped successfully.", threadID);
+      return api.sendMessage("🛑 Loop stopped for this group.", threadID);
     } else {
-      return api.sendMessage("⚠️ No loop is currently running in this group.", threadID);
+      return api.sendMessage("⚠️ No active loop in this group.", threadID);
     }
   }
 
-  // Create np.txt if not found
+  // 📝 Auto-create np.txt if missing
   if (!fs.existsSync(filePath)) {
-    fs.writeFileSync(filePath, "Hello!\nThis is your np.txt.\nEdit and save your own messages.");
-    return api.sendMessage("📝 np.txt created. Please edit it with your own messages.", threadID);
+    fs.writeFileSync(filePath, "Edit this np.txt with your custom lines.\nAdd multiple lines as messages.");
+    return api.sendMessage("📄 Created np.txt. Please edit it with your own messages.", threadID);
   }
 
-  // Read and clean messages
+  // 📚 Read lines from np.txt
   const messages = fs.readFileSync(filePath, "utf-8")
     .split("\n")
     .map(line => line.trim())
     .filter(line => line.length > 0);
 
   if (messages.length === 0) {
-    return api.sendMessage("⚠️ np.txt is empty. Please add some messages.", threadID);
+    return api.sendMessage("⚠️ np.txt is empty. Please add messages.", threadID);
   }
 
-  // Optional: delay and prefix
-  let delay = 1000; // default 1 sec
+  // ⏱️ Delay (default: 1s)
+  let delay = 1000;
   let prefix = "";
 
   if (args.length > 0) {
     const d = parseInt(args[0]);
     if (!isNaN(d)) delay = d * 1000;
-
-    if (args.length > 1) {
-      prefix = args.slice(1).join(" ") + " ";
-    }
+    if (args.length > 1) prefix = args.slice(1).join(" ") + " ";
   }
 
-  // Start loop
+  // 🚀 Start Loop
   isRunning[threadID] = true;
   api.sendMessage(`✅ Loop started.\n⏱ Delay: ${delay / 1000}s\n🔖 Prefix: ${prefix || "(none)"}`, threadID);
 
-  // Endless message loop
+  // 🔁 Endless Loop Until Stopped
   while (isRunning[threadID]) {
     for (const line of messages) {
       if (!isRunning[threadID]) break;
@@ -73,6 +69,6 @@ module.exports.run = async ({ api, event, args }) => {
     }
   }
 
-  // Loop finished
-  isRunning[threadID] = false;
+  // 🔕 Loop stopped manually
+  // Don't send "msg end" anymore
 };
