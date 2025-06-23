@@ -16,7 +16,7 @@ module.exports.config = {
 
 module.exports.run = async ({ api, event, args }) => {
   const { threadID } = event;
-  const filePath = path.resolve("modules/commands/np.txt");
+  const filePath = path.resolve("Priyansh/commands/np.txt");
 
   // Stop loop
   if (args[0] === "stop") {
