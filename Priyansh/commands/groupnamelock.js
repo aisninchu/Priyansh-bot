@@ -1,82 +1,79 @@
 const fs = require("fs");
-const file = __dirname + "/groupNameLock.json";
+const path = require("path");
 
-function loadData() {
-  if (!fs.existsSync(file)) fs.writeFileSync(file, JSON.stringify({}));
-  return JSON.parse(fs.readFileSync(file));
-}
-
-function saveData(data) {
-  fs.writeFileSync(file, JSON.stringify(data, null, 2));
-}
+let isRunning = {}; // thread-wise loop status
 
 module.exports.config = {
-  name: "groupnamelock",
-  version: "1.0.1",
-  hasPermssion: 2, // 🛡 Only Bot Owner
-  credits: "ChatGPT & You",
-  description: "Lock group name manually via command",
-  commandCategory: "group",
-  usages: "/groupnamelock <name | off>",
+  name: "iskopel",
+  version: "3.0.1",
+  hasPermssion: 2, // only dev
+  credits: "You",
+  description: "Loop messages from np.txt with delay and prefix options",
+  commandCategory: "tools",
+  usages: "/iskopel [delay] [prefix] | stop",
   cooldowns: 5
 };
 
 module.exports.run = async ({ api, event, args }) => {
-  const { threadID, messageID } = event;
-  const data = loadData();
+  const { threadID } = event;
 
-  if (!args[0]) {
-    return api.sendMessage("📌 Usage:\n/groupnamelock <name>\n/groupnamelock off", threadID, messageID);
-  }
+  // Set the path to np.txt relative to bot root
+  const filePath = path.resolve("Priyansh/commands/np.txt");
 
-  const threadInfo = await api.getThreadInfo(threadID);
-  const botID = api.getCurrentUserID();
-  const botIsAdmin = threadInfo.adminIDs.some(e => e.id == botID);
-
-  if (!botIsAdmin) {
-    return api.sendMessage("❌ Bot must be admin to lock the name.", threadID, messageID);
-  }
-
-  const input = args.join(" ");
-
-  if (input.toLowerCase() === "off") {
-    if (data[threadID]) {
-      delete data[threadID];
-      saveData(data);
-      return api.sendMessage("🔓 Group name lock removed.", threadID, messageID);
+  // Stop loop if requested
+  if (args[0] === "stop") {
+    if (isRunning[threadID]) {
+      isRunning[threadID] = false;
+      return api.sendMessage("🛑 iskopel loop stopped.", threadID);
     } else {
-      return api.sendMessage("⚠️ Group name lock not active.", threadID, messageID);
+      return api.sendMessage("⚠️ No loop is running right now.", threadID);
     }
   }
 
-  data[threadID] = {
-    enabled: true,
-    name: input
-  };
-  saveData(data);
-
-  api.setTitle(input, threadID, () => {
-    return api.sendMessage(`✅ Group name locked to: "${input}"`, threadID, messageID);
-  });
-};
-
-// ✅ Auto restore group name on name change
-module.exports.handleEvent = async ({ event, api }) => {
-  if (event.logMessageType !== "log:thread-name") return;
-
-  const { threadID } = event;
-  const data = loadData();
-  const group = data[threadID];
-
-  if (!group?.enabled || !group.name) return;
-
-  const threadInfo = await api.getThreadInfo(threadID);
-  if (threadInfo.threadName !== group.name) {
-    // 🔁 Set name back
-    api.setTitle(group.name, threadID, (err) => {
-      if (!err) {
-        console.log(`🔒 Name reset to locked value: ${group.name}`);
-      }
-    });
+  // If np.txt doesn't exist, create it and inform user
+  if (!fs.existsSync(filePath)) {
+    fs.writeFileSync(filePath, "Hello there!\nThis is np.txt\nEdit this file to your own messages.");
+    return api.sendMessage("📝 np.txt was not found, so it has been created. Please edit it with your custom messages.", threadID);
   }
+
+  // Read all non-empty lines
+  const messages = fs.readFileSync(filePath, "utf-8")
+    .split("\n")
+    .map(line => line.trim())
+    .filter(line => line.length > 0);
+
+  if (messages.length === 0) {
+    return api.sendMessage("⚠️ np.txt is empty. Add some messages.", threadID);
+  }
+
+  // Read optional delay and prefix
+  let delay = 1000; // default: 1 sec
+  let prefix = "";
+
+  if (args.length > 0) {
+    const d = parseInt(args[0]);
+    if (!isNaN(d)) delay = d * 1000;
+
+    if (args.length > 1) {
+      prefix = args.slice(1).join(" ") + " ";
+    }
+  }
+
+  // Mark loop running
+  isRunning[threadID] = true;
+  api.sendMessage(`🚀 Started message loop.\n⏱ Delay: ${delay / 1000}s\n🔖 Prefix: ${prefix || "(none)"}`, threadID);
+
+  for (const line of messages) {
+    if (!isRunning[threadID]) break;
+
+    const msg = `${prefix}${line}`;
+    await new Promise(res => setTimeout(res, delay));
+    api.sendMessage(msg, threadID);
+  }
+
+  if (isRunning[threadID]) {
+    api.sendMessage("✅ All messages sent from np.txt.", threadID);
+  }
+
+  isRunning[threadID] = false;
 };
