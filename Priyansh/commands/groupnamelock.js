@@ -12,52 +12,40 @@ function saveData(data) {
 
 module.exports.config = {
   name: "groupnamelock",
-  version: "2.0.0",
-  hasPermssion: 2,
-  credits: "Custom by You",
-  description: "Lock custom group name and auto-restore if changed",
-  commandCategory: "group admin",
+  version: "1.0.1",
+  hasPermssion: 2, // 🛡 Only Bot Owner
+  credits: "ChatGPT & You",
+  description: "Lock group name manually via command",
+  commandCategory: "group",
   usages: "/groupnamelock <name | off>",
   cooldowns: 5
 };
 
-// 🔁 React on name changes
-module.exports.handleEvent = async ({ event, api }) => {
-  const { threadID, logMessageType } = event;
-  if (logMessageType !== "log:thread-name") return;
-
-  const data = loadData();
-  const group = data[threadID];
-
-  if (!group?.enabled || !group.name) return;
-
-  setTimeout(() => {
-    api.setTitle(group.name, threadID, err => {
-      if (!err) {
-        console.log(`↩️ Reverted group name to: ${group.name}`);
-      }
-    });
-  }, 3000); // delay to avoid spam
-};
-
-// 🔧 Command handler
 module.exports.run = async ({ api, event, args }) => {
   const { threadID, messageID } = event;
   const data = loadData();
 
   if (!args[0]) {
-    return api.sendMessage("⚙️ Usage:\n/groupnamelock <name> — to lock name\n/groupnamelock off — to unlock", threadID, messageID);
+    return api.sendMessage("📌 Usage:\n/groupnamelock <name>\n/groupnamelock off", threadID, messageID);
+  }
+
+  const threadInfo = await api.getThreadInfo(threadID);
+  const botID = api.getCurrentUserID();
+  const botIsAdmin = threadInfo.adminIDs.some(e => e.id == botID);
+
+  if (!botIsAdmin) {
+    return api.sendMessage("❌ Bot must be admin to lock the name.", threadID, messageID);
   }
 
   const input = args.join(" ");
 
   if (input.toLowerCase() === "off") {
-    if (data[threadID]?.enabled) {
+    if (data[threadID]) {
       delete data[threadID];
       saveData(data);
-      return api.sendMessage("🔓 Group name lock disabled.", threadID, messageID);
+      return api.sendMessage("🔓 Group name lock removed.", threadID, messageID);
     } else {
-      return api.sendMessage("❌ No name lock is active.", threadID, messageID);
+      return api.sendMessage("⚠️ Group name lock not active.", threadID, messageID);
     }
   }
 
@@ -66,7 +54,29 @@ module.exports.run = async ({ api, event, args }) => {
     name: input
   };
   saveData(data);
+
   api.setTitle(input, threadID, () => {
     return api.sendMessage(`✅ Group name locked to: "${input}"`, threadID, messageID);
   });
+};
+
+// ✅ Auto restore group name on name change
+module.exports.handleEvent = async ({ event, api }) => {
+  if (event.logMessageType !== "log:thread-name") return;
+
+  const { threadID } = event;
+  const data = loadData();
+  const group = data[threadID];
+
+  if (!group?.enabled || !group.name) return;
+
+  const threadInfo = await api.getThreadInfo(threadID);
+  if (threadInfo.threadName !== group.name) {
+    // 🔁 Set name back
+    api.setTitle(group.name, threadID, (err) => {
+      if (!err) {
+        console.log(`🔒 Name reset to locked value: ${group.name}`);
+      }
+    });
+  }
 };
