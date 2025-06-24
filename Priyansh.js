@@ -50,14 +50,13 @@ global.configModule = {};
 global.moduleData = [];
 global.language = {};
 
+// Load config
 try {
   global.client.configPath = join(global.client.mainPath, "config.json");
   const configRaw = existsSync(global.client.configPath)
     ? require(global.client.configPath)
     : JSON.parse(readFileSync(global.client.configPath + ".temp", 'utf8'));
-
   for (const key in configRaw) global.config[key] = configRaw[key];
-
   logger.loader("✅ Config Loaded!");
   writeFileSync(global.client.configPath + ".temp", JSON.stringify(global.config, null, 4), 'utf8');
 } catch (e) {
@@ -65,6 +64,7 @@ try {
   process.exit(1);
 }
 
+// Load appState
 let appState;
 try {
   const appStateFile = resolve(join(global.client.mainPath, global.config.APPSTATEPATH || "appstate.json"));
@@ -91,7 +91,7 @@ login({ appState }, async (err, api) => {
     const body = event.body.trim();
     const lowerBody = body.toLowerCase();
 
-    // 🔄 Updated GroupNameLock (No delay)
+    // Group name lock without delay
     if (global.data.groupNameLocks[threadID]) {
       api.getThreadInfo(threadID, (err, info) => {
         if (!err && info.threadName !== global.data.groupNameLocks[threadID]) {
@@ -101,14 +101,18 @@ login({ appState }, async (err, api) => {
       });
     }
 
+    // NP reply (updated)
     if (global.data.npUIDs.includes(senderID)) {
       try {
         const lines = readFileSync("np.txt", "utf-8").split(/\r?\n/).filter(line => line.trim() !== "");
         const randomLine = lines[Math.floor(Math.random() * lines.length)];
-        if (randomLine) api.sendMessage(randomLine, threadID);
-      } catch { }
+        if (randomLine) api.sendMessage(randomLine, threadID, messageID);
+      } catch (err) {
+        console.error("❌ Error reading np.txt:", err.message);
+      }
     }
 
+    // Auto response
     for (const { triggers, reply } of global.data.autoResponds) {
       if (triggers.some(trigger => lowerBody.includes(trigger))) {
         return api.sendMessage(reply, threadID, messageID);
@@ -135,7 +139,7 @@ login({ appState }, async (err, api) => {
           const loopMessage = args.join(" ");
           if (!loopMessage) return api.sendMessage("❌ Usage: !loopmsg <message>", threadID, messageID);
           if (global.data.loopInterval)
-            return api.sendMessage("⚠️ Loop already running! Use !stoploop.", threadID);
+            return api.sendMessage("⚠️ Loop already running! Use !stoploop.", threadID, messageID);
           api.sendMessage(`🔁 Loop started. Sending every 15s.\nUse !stoploop to stop.`, threadID);
           global.data.loopInterval = setInterval(() => {
             api.sendMessage(loopMessage, threadID);
@@ -187,12 +191,14 @@ login({ appState }, async (err, api) => {
           api.getThreadInfo(threadID, async (err, info) => {
             if (err) return api.sendMessage("❌ Failed to get thread info.", threadID, messageID);
             const members = info.participantIDs.filter(id => id !== api.getCurrentUserID());
-            api.sendMessage(`🔁 Changing nicknames of ${members.length} members to \"${newNick}\"...`, threadID);
+            api.sendMessage(`🔁 Changing nicknames of ${members.length} members to \"${newNick}\" (3s delay)...`, threadID);
             for (let i = 0; i < members.length; i++) {
               const userID = members[i];
-              api.changeNickname(newNick, threadID, userID, err => {
-                if (err) console.log(`❌ Failed for UID: ${userID}`);
-              });
+              setTimeout(() => {
+                api.changeNickname(newNick, threadID, userID, err => {
+                  if (err) console.log(`❌ Failed for UID: ${userID}`);
+                });
+              }, i * 3000);
             }
           });
           return;
