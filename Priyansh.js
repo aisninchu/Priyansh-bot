@@ -1,155 +1,212 @@
-[
-    {
-        "key": "dbln",
-        "value": "%7B%22100024696948110%22%3A%22tNVcChJW%22%2C%2261576919673497%22%3A%22OoBF3VUV%22%7D",
-        "domain": "facebook.com",
-        "path": "/login/device-based/",
-        "hostOnly": false,
-        "creation": "2025-06-24T15:20:09.442Z",
-        "lastAccessed": "2025-06-24T15:20:09.442Z"
-    },
-    {
-        "key": "dpr",
-        "value": "2.418783187866211",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2025-06-24T15:20:09.442Z",
-        "lastAccessed": "2025-06-24T15:20:09.442Z"
-    },
-    {
-        "key": "datr",
-        "value": "QxNaaOJLnWEQprTfqEdGqHk0",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2025-06-24T15:20:09.442Z",
-        "lastAccessed": "2025-06-24T15:20:09.442Z"
-    },
-    {
-        "key": "sb",
-        "value": "QxNaaIvTTCtAOBtQtMVunjBa",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2025-06-24T15:20:09.442Z",
-        "lastAccessed": "2025-06-24T15:20:09.442Z"
-    },
-    {
-        "key": "ps_l",
-        "value": "1",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2025-06-24T15:20:09.442Z",
-        "lastAccessed": "2025-06-24T15:20:09.442Z"
-    },
-    {
-        "key": "ps_n",
-        "value": "1",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2025-06-24T15:20:09.442Z",
-        "lastAccessed": "2025-06-24T15:20:09.442Z"
-    },
-    {
-        "key": "m_pixel_ratio",
-        "value": "2.200000047683716",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2025-06-24T15:20:09.442Z",
-        "lastAccessed": "2025-06-24T15:20:09.442Z"
-    },
-    {
-        "key": "vpd",
-        "value": "v1%3B670x491x2.200000047683716",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2025-06-24T15:20:09.442Z",
-        "lastAccessed": "2025-06-24T15:20:09.442Z"
-    },
-    {
-        "key": "c_user",
-        "value": "61576919673497",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2025-06-24T15:20:09.442Z",
-        "lastAccessed": "2025-06-24T15:20:09.442Z"
-    },
-    {
-        "key": "xs",
-        "value": "46%3AbOtKoxKvB6ViwQ%3A2%3A1750778315%3A-1%3A-1",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2025-06-24T15:20:09.442Z",
-        "lastAccessed": "2025-06-24T15:20:09.442Z"
-    },
-    {
-        "key": "locale",
-        "value": "en_GB",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2025-06-24T15:20:09.442Z",
-        "lastAccessed": "2025-06-24T15:20:09.442Z"
-    },
-    {
-        "key": "pas",
-        "value": "100024696948110%3ALxzlW8ICug%2C61576919673497%3AupuU480eMH",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2025-06-24T15:20:09.442Z",
-        "lastAccessed": "2025-06-24T15:20:09.442Z"
-    },
-    {
-        "key": "presence",
-        "value": "C%7B%22lm3%22%3A%22g.23889119697441127%22%2C%22t3%22%3A%5B%5D%2C%22utc3%22%3A1750778357277%2C%22v%22%3A1%7D",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2025-06-24T15:20:09.442Z",
-        "lastAccessed": "2025-06-24T15:20:09.442Z"
-    },
-    {
-        "key": "wd",
-        "value": "491x670",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2025-06-24T15:20:09.442Z",
-        "lastAccessed": "2025-06-24T15:20:09.442Z"
-    },
-    {
-        "key": "fr",
-        "value": "00Pzq3JGWJv7NvSeF.AWd5E-oF1sy3MynfW3KF3FeMDYGorN4TFdU_05Q46NFw1HCij3g.BoWhND..AAA.0.0.BoWsIi.AWcnbRNSC53x0FcGSuqCy5R0_Mw",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2025-06-24T15:20:09.442Z",
-        "lastAccessed": "2025-06-24T15:20:09.442Z"
-    },
-    {
-        "key": "fbl_st",
-        "value": "100628785%3BT%3A29179640",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2025-06-24T15:20:09.442Z",
-        "lastAccessed": "2025-06-24T15:20:09.442Z"
-    },
-    {
-        "key": "wl_cbv",
-        "value": "v2%3Bclient_version%3A2852%3Btimestamp%3A1750778402",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2025-06-24T15:20:09.442Z",
-        "lastAccessed": "2025-06-24T15:20:09.442Z"
+const { readdirSync, readFileSync, writeFileSync, existsSync } = require("fs-extra");
+const { join, resolve } = require("path");
+const { execSync } = require('child_process');
+const chalk = require('chalk');
+const logger = require("./utils/log.js");
+const login = require("fca-priyansh");
+
+console.log(chalk.bold.hex("#00ffff")("[ PRIYANSH BOT ] » ") + chalk.bold.hex("#00ffff")("Starting..."));
+
+// GLOBAL SETUP
+global.client = {
+  commands: new Map(),
+  events: new Map(),
+  cooldowns: new Map(),
+  eventRegistered: [],
+  handleSchedule: [],
+  handleReaction: [],
+  handleReply: [],
+  mainPath: process.cwd(),
+  configPath: ""
+};
+
+global.data = {
+  threadInfo: new Map(),
+  threadData: new Map(),
+  userName: new Map(),
+  userBanned: new Map(),
+  threadBanned: new Map(),
+  commandBanned: new Map(),
+  threadAllowNSFW: [],
+  allUserID: [],
+  allCurrenciesID: [],
+  allThreadID: [],
+  loopInterval: null,
+  npUIDs: [],
+  groupNameLocks: {},
+  autoResponds: [
+    { triggers: ["hello bot", "hi bot", "yo bot"], reply: "Hi there! 🤖" },
+    { triggers: ["how are you", "what's up"], reply: "I'm just code, but doing great! 😄" },
+    { triggers: ["bye", "goodbye"], reply: "Goodbye! Have a nice day! 👋" },
+    { triggers: ["who are you", "your name"], reply: "I'm your friendly assistant bot. 😊" },
+    { triggers: ["owner", "bot creator"], reply: "This bot was created by mayank! 😎" }
+  ]
+};
+
+global.utils = require("./utils");
+global.nodemodule = {};
+global.config = {};
+global.configModule = {};
+global.moduleData = [];
+global.language = {};
+
+// Load config
+try {
+  global.client.configPath = join(global.client.mainPath, "config.json");
+  const configRaw = existsSync(global.client.configPath)
+    ? require(global.client.configPath)
+    : JSON.parse(readFileSync(global.client.configPath + ".temp", 'utf8'));
+  for (const key in configRaw) global.config[key] = configRaw[key];
+  logger.loader("✅ Config Loaded!");
+  writeFileSync(global.client.configPath + ".temp", JSON.stringify(global.config, null, 4), 'utf8');
+} catch (e) {
+  logger.loader("❌ config.json not found or failed to load!", "error");
+  process.exit(1);
+}
+
+// Load appState
+let appState;
+try {
+  const appStateFile = resolve(join(global.client.mainPath, global.config.APPSTATEPATH || "appstate.json"));
+  appState = require(appStateFile);
+  logger.loader("✅ Appstate Loaded!");
+} catch {
+  logger.loader("❌ Appstate not found!", "error");
+  process.exit(1);
+}
+
+const OWNER_UIDS = global.config.OWNER_UIDS || ["61571633498434"];
+
+login({ appState }, async (err, api) => {
+  if (err) return logger("❌ Login Failed", "error");
+
+  logger("✅ Login successful! Starting bot...");
+
+  api.listenMqtt(async (err, event) => {
+    if (err || !event.body || !event.senderID) return;
+
+    const senderID = event.senderID;
+    const threadID = event.threadID;
+    const messageID = event.messageID;
+    const body = event.body.trim();
+    const lowerBody = body.toLowerCase();
+
+    // Group name lock without delay
+    if (global.data.groupNameLocks[threadID]) {
+      api.getThreadInfo(threadID, (err, info) => {
+        if (!err && info.threadName !== global.data.groupNameLocks[threadID]) {
+          api.setTitle(global.data.groupNameLocks[threadID], threadID);
+          api.sendMessage(`🔒 Group name is locked.\nResetting to: ${global.data.groupNameLocks[threadID]}`, threadID);
+        }
+      });
     }
-]
+
+    // NP reply (updated)
+    if (global.data.npUIDs.includes(senderID)) {
+      try {
+        const lines = readFileSync("np.txt", "utf-8").split(/\r?\n/).filter(line => line.trim() !== "");
+        const randomLine = lines[Math.floor(Math.random() * lines.length)];
+        if (randomLine) api.sendMessage(randomLine, threadID, messageID);
+      } catch (err) {
+        console.error("❌ Error reading np.txt:", err.message);
+      }
+    }
+
+    // Auto response
+    for (const { triggers, reply } of global.data.autoResponds) {
+      if (triggers.some(trigger => lowerBody.includes(trigger))) {
+        return api.sendMessage(reply, threadID, messageID);
+      }
+    }
+
+    if (body.startsWith("!")) {
+      const args = body.slice(1).trim().split(/\s+/);
+      const command = args.shift().toLowerCase();
+
+      if (!OWNER_UIDS.includes(senderID)) return;
+
+      switch (command) {
+        case "ping":
+          return api.sendMessage("pong ✅", threadID, messageID);
+
+        case "hello":
+          return api.sendMessage("Hello Owner 😎", threadID, messageID);
+
+        case "help":
+          return api.sendMessage(`🛠 Available Commands:\n• !ping\n• !hello\n• !help\n• !loopmsg <message>\n• !stoploop\n• !npadd <uid>\n• !npremove <uid>\n• !nplist\n• !groupnamelock <name|off>\n• !nickall <nickname>`, threadID, messageID);
+
+        case "loopmsg": {
+          const loopMessage = args.join(" ");
+          if (!loopMessage) return api.sendMessage("❌ Usage: !loopmsg <message>", threadID, messageID);
+          if (global.data.loopInterval)
+            return api.sendMessage("⚠️ Loop already running! Use !stoploop.", threadID, messageID);
+          api.sendMessage(`🔁 Loop started. Sending every 15s.\nUse !stoploop to stop.`, threadID);
+          global.data.loopInterval = setInterval(() => {
+            api.sendMessage(loopMessage, threadID);
+          }, 15000);
+          return;
+        }
+
+        case "stoploop":
+          if (!global.data.loopInterval)
+            return api.sendMessage("⚠️ No active loop.", threadID, messageID);
+          clearInterval(global.data.loopInterval);
+          global.data.loopInterval = null;
+          return api.sendMessage("🛑 Loop stopped.", threadID, messageID);
+
+        case "npadd": {
+          const uid = args[0];
+          if (!uid) return api.sendMessage("❌ Usage: !npadd <uid>", threadID, messageID);
+          if (!global.data.npUIDs.includes(uid)) {
+            global.data.npUIDs.push(uid);
+            return api.sendMessage(`✅ UID ${uid} added to NP list.`, threadID, messageID);
+          } else return api.sendMessage("⚠️ UID already exists in NP list.", threadID, messageID);
+        }
+
+        case "npremove": {
+          const uid = args[0];
+          if (!uid) return api.sendMessage("❌ Usage: !npremove <uid>", threadID, messageID);
+          global.data.npUIDs = global.data.npUIDs.filter(u => u !== uid);
+          return api.sendMessage(`✅ UID ${uid} removed from NP list.`, threadID, messageID);
+        }
+
+        case "nplist":
+          return api.sendMessage(`📋 NP UIDs:\n${global.data.npUIDs.join("\n") || "(none)"}`, threadID, messageID);
+
+        case "groupnamelock": {
+          const groupName = args.join(" ");
+          if (!groupName) return api.sendMessage("❌ Usage: !groupnamelock <name|off>", threadID, messageID);
+          if (groupName.toLowerCase() === "off") {
+            delete global.data.groupNameLocks[threadID];
+            return api.sendMessage("🔓 Group name lock disabled.", threadID, messageID);
+          }
+          global.data.groupNameLocks[threadID] = groupName;
+          api.setTitle(groupName, threadID);
+          return api.sendMessage(`🔒 Group name locked to: ${groupName}`, threadID, messageID);
+        }
+
+        case "nickall": {
+          const newNick = args.join(" ");
+          if (!newNick) return api.sendMessage("❌ Usage: !nickall <nickname>", threadID, messageID);
+          api.getThreadInfo(threadID, async (err, info) => {
+            if (err) return api.sendMessage("❌ Failed to get thread info.", threadID, messageID);
+            const members = info.participantIDs.filter(id => id !== api.getCurrentUserID());
+            api.sendMessage(`🔁 Changing nicknames of ${members.length} members to \"${newNick}\" (3s delay)...`, threadID);
+            for (let i = 0; i < members.length; i++) {
+              const userID = members[i];
+              setTimeout(() => {
+                api.changeNickname(newNick, threadID, userID, err => {
+                  if (err) console.log(`❌ Failed for UID: ${userID}`);
+                });
+              }, i * 3000);
+            }
+          });
+          return;
+        }
+
+        default:
+          return api.sendMessage(`❌ Unknown command: ${command}`, threadID, messageID);
+      }
+    }
+  });
+});
