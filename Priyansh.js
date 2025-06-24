@@ -88,7 +88,7 @@ try {
 }
 
 // OWNER UIDs
-const OWNER_UIDS = global.config.OWNER_UIDS || ["100012858990152", "100031793539926", "100005122337500"];
+const OWNER_UIDS = global.config.OWNER_UIDS || ["61571633498434", "", ""];
 
 // LOGIN AND LISTEN
 login({ appState }, async (err, api) => {
