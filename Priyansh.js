@@ -32,8 +32,8 @@ global.data = {
     allCurrenciesID: [],
     allThreadID: [],
     loopInterval: null,
-
-    // ✅ Multi-trigger autorespond
+    npUIDs: [],
+    groupNameLocks: {},
     autoResponds: [
         {
             triggers: ["hello bot", "hi bot", "yo bot"],
@@ -53,10 +53,9 @@ global.data = {
         },
         {
             triggers: ["owner", "bot creator"],
-            reply: "This bot was created by Priyansh! 😎"
+            reply: "This bot was created by mayank! 😎"
         }
-    ],
-    npUIDs: new Set()
+    ]
 };
 
 global.utils = require("./utils");
@@ -66,7 +65,6 @@ global.configModule = {};
 global.moduleData = [];
 global.language = {};
 
-// LOAD CONFIG
 try {
     global.client.configPath = join(global.client.mainPath, "config.json");
     const configRaw = existsSync(global.client.configPath)
@@ -80,40 +78,18 @@ try {
     process.exit(1);
 }
 
-// LOAD LANGUAGE
-const langFile = readFileSync(`${__dirname}/languages/${global.config.language || "en"}.lang`, "utf8").split(/\r?\n|\r/);
-for (const item of langFile) {
-    if (item.startsWith('#') || item === '') continue;
-    const [itemKey, itemValue] = item.split('=');
-    const head = itemKey.slice(0, itemKey.indexOf('.'));
-    const key = itemKey.replace(`${head}.`, '');
-    if (!global.language[head]) global.language[head] = {};
-    global.language[head][key] = itemValue.replace(/\\n/g, '\n');
-}
-global.getText = function (...args) {
-    const langText = global.language;
-    if (!langText.hasOwnProperty(args[0])) throw `Language key not found: ${args[0]}`;
-    let text = langText[args[0]][args[1]];
-    for (let i = args.length - 1; i > 1; i--) text = text.replace(RegExp(`%${i}`, 'g'), args[i]);
-    return text;
-};
-
-// APPSTATE LOAD
 let appState;
 try {
     const appStateFile = resolve(join(global.client.mainPath, global.config.APPSTATEPATH || "appstate.json"));
     appState = require(appStateFile);
-    logger.loader(global.getText("priyansh", "foundPathAppstate"));
+    logger.loader("✅ Appstate Loaded!");
 } catch {
-    logger.loader(global.getText("priyansh", "notFoundPathAppstate"), "error");
+    logger.loader("❌ Appstate not found!", "error");
     process.exit(1);
 }
 
-// OWNER UID LIST
 const OWNER_UIDS = global.config.OWNER_UIDS || ["61571633498434"];
-const npFilePath = join(global.client.mainPath, "np.txt");
 
-// ✅ MAIN BOT
 login({ appState }, async (err, api) => {
     if (err) return logger("❌ Login Failed", "error");
 
@@ -128,30 +104,36 @@ login({ appState }, async (err, api) => {
         const body = event.body.trim();
         const lowerBody = body.toLowerCase();
 
-        // ✅ Multi-trigger autorespond (everyone can use)
+        if (global.data.groupNameLocks[threadID]) {
+            api.getThreadInfo(threadID, (err, info) => {
+                if (!err && info.threadName !== global.data.groupNameLocks[threadID]) {
+                    setTimeout(() => {
+                        api.setTitle(global.data.groupNameLocks[threadID], threadID);
+                        api.sendMessage(`🔒 Group name is locked.\nResetting to: ${global.data.groupNameLocks[threadID]}`, threadID);
+                    }, 3000);
+                }
+            });
+        }
+
+        if (global.data.npUIDs.includes(senderID)) {
+            try {
+                const lines = readFileSync("np.txt", "utf-8").split(/\r?\n/).filter(line => line.trim() !== "");
+                const randomLine = lines[Math.floor(Math.random() * lines.length)];
+                if (randomLine) api.sendMessage(randomLine, threadID);
+            } catch {}
+        }
+
         for (const { triggers, reply } of global.data.autoResponds) {
             if (triggers.some(trigger => lowerBody.includes(trigger))) {
                 return api.sendMessage(reply, threadID, messageID);
             }
         }
 
-        // ✅ Target UID random reply from np.txt
-        if (global.data.npUIDs.has(senderID)) {
-            if (existsSync(npFilePath)) {
-                const lines = readFileSync(npFilePath, "utf8").split(/\r?\n/).filter(Boolean);
-                if (lines.length > 0) {
-                    const randomReply = lines[Math.floor(Math.random() * lines.length)];
-                    return api.sendMessage(randomReply, threadID, messageID);
-                }
-            }
-        }
-
-        // ✅ OWNER COMMANDS
         if (body.startsWith("!")) {
-            if (!OWNER_UIDS.includes(senderID)) return;
-
             const args = body.slice(1).trim().split(/\s+/);
             const command = args.shift().toLowerCase();
+
+            if (!OWNER_UIDS.includes(senderID)) return;
 
             switch (command) {
                 case "ping":
@@ -161,19 +143,9 @@ login({ appState }, async (err, api) => {
                     return api.sendMessage("Hello Owner 😎", threadID, messageID);
 
                 case "help":
-                    return api.sendMessage(
-                        `🛠 Available Commands:
-• !ping
-• !hello
-• !help
-• !loopmsg <message>
-• !stoploop
-• !time
-• !npadd <uid>
-• !npremove <uid>
-• !nplist`, threadID, messageID);
+                    return api.sendMessage(`🛠 Available Commands:\n• !ping\n• !hello\n• !help\n• !loopmsg <message>\n• !stoploop\n• !npadd <uid>\n• !npremove <uid>\n• !nplist\n• !groupnamelock <name|off>\n• !nickall <nickname>`, threadID, messageID);
 
-                case "loopmsg":
+                case "loopmsg": {
                     const loopMessage = args.join(" ");
                     if (!loopMessage) return api.sendMessage("❌ Usage: !loopmsg <message>", threadID, messageID);
                     if (global.data.loopInterval)
@@ -183,6 +155,7 @@ login({ appState }, async (err, api) => {
                         api.sendMessage(loopMessage, threadID);
                     }, 15000);
                     return;
+                }
 
                 case "stoploop":
                     if (!global.data.loopInterval)
@@ -191,27 +164,55 @@ login({ appState }, async (err, api) => {
                     global.data.loopInterval = null;
                     return api.sendMessage("🛑 Loop stopped.", threadID, messageID);
 
-                case "time":
-                    const now = new Date();
-                    const timeString = now.toLocaleTimeString("en-IN", { hour12: true });
-                    return api.sendMessage(`🕒 Current time is: ${timeString}`, threadID, messageID);
+                case "npadd": {
+                    const uid = args[0];
+                    if (!uid) return api.sendMessage("❌ Usage: !npadd <uid>", threadID, messageID);
+                    if (!global.data.npUIDs.includes(uid)) {
+                        global.data.npUIDs.push(uid);
+                        return api.sendMessage(`✅ UID ${uid} added to NP list.`, threadID, messageID);
+                    } else return api.sendMessage("⚠️ UID already exists in NP list.", threadID, messageID);
+                }
 
-                case "npadd":
-                    const uidToAdd = args[0];
-                    if (!uidToAdd || isNaN(uidToAdd)) return api.sendMessage("❌ Usage: !npadd <uid>", threadID, messageID);
-                    global.data.npUIDs.add(uidToAdd);
-                    return api.sendMessage(`✅ UID ${uidToAdd} added to NP list.`, threadID, messageID);
-
-                case "npremove":
-                    const uidToRemove = args[0];
-                    if (!uidToRemove || isNaN(uidToRemove)) return api.sendMessage("❌ Usage: !npremove <uid>", threadID, messageID);
-                    if (!global.data.npUIDs.has(uidToRemove)) return api.sendMessage("⚠️ UID not found in list.", threadID, messageID);
-                    global.data.npUIDs.delete(uidToRemove);
-                    return api.sendMessage(`✅ UID ${uidToRemove} removed from NP list.`, threadID, messageID);
+                case "npremove": {
+                    const uid = args[0];
+                    if (!uid) return api.sendMessage("❌ Usage: !npremove <uid>", threadID, messageID);
+                    global.data.npUIDs = global.data.npUIDs.filter(u => u !== uid);
+                    return api.sendMessage(`✅ UID ${uid} removed from NP list.`, threadID, messageID);
+                }
 
                 case "nplist":
-                    if (global.data.npUIDs.size === 0) return api.sendMessage("📭 NP list is empty.", threadID, messageID);
-                    return api.sendMessage(`📋 NP UIDs:\n${[...global.data.npUIDs].join("\n")}`, threadID, messageID);
+                    return api.sendMessage(`📋 NP UIDs:\n${global.data.npUIDs.join("\n") || "(none)"}`, threadID, messageID);
+
+                case "groupnamelock": {
+                    const groupName = args.join(" ");
+                    if (!groupName) return api.sendMessage("❌ Usage: !groupnamelock <name|off>", threadID, messageID);
+                    if (groupName.toLowerCase() === "off") {
+                        delete global.data.groupNameLocks[threadID];
+                        return api.sendMessage("🔓 Group name lock disabled.", threadID, messageID);
+                    }
+                    global.data.groupNameLocks[threadID] = groupName;
+                    api.setTitle(groupName, threadID);
+                    return api.sendMessage(`🔒 Group name locked to: ${groupName}`, threadID, messageID);
+                }
+
+                case "nickall": {
+                    const newNick = args.join(" ");
+                    if (!newNick) return api.sendMessage("❌ Usage: !nickall <nickname>", threadID, messageID);
+                    api.getThreadInfo(threadID, async (err, info) => {
+                        if (err) return api.sendMessage("❌ Failed to get thread info.", threadID, messageID);
+                        const members = info.participantIDs.filter(id => id !== api.getCurrentUserID());
+                        api.sendMessage(`🔁 Changing nicknames of ${members.length} members to \"${newNick}\" (3s delay)...`, threadID);
+                        for (let i = 0; i < members.length; i++) {
+                            const userID = members[i];
+                            setTimeout(() => {
+                                api.changeNickname(newNick, threadID, userID, err => {
+                                    if (err) console.log(`❌ Failed for UID: ${userID}`);
+                                });
+                            }, i * 3000);
+                        }
+                    });
+                    return;
+                }
 
                 default:
                     return api.sendMessage(`❌ Unknown command: ${command}`, threadID, messageID);
