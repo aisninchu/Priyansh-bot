@@ -1,12 +1,11 @@
-const { readdirSync, readFileSync, writeFileSync, existsSync, unlinkSync, rm } = require("fs-extra");
+const { readdirSync, readFileSync, writeFileSync, existsSync } = require("fs-extra");
 const { join, resolve } = require("path");
 const { execSync } = require('child_process');
 const chalk = require('chalk');
 const logger = require("./utils/log.js");
 const login = require("fca-priyansh");
-const axios = require("axios");
 
-console.log(chalk.bold.hex("#00ffff")("[ PRIYANSH RAJPUT (PRIYANSH) ] » ") + chalk.bold.hex("#00ffff")("Initializing variables..."));
+console.log(chalk.bold.hex("#00ffff")("[ PRIYANSH BOT ] » ") + chalk.bold.hex("#00ffff")("Starting..."));
 
 // GLOBAL SETUP
 global.client = {
@@ -32,7 +31,31 @@ global.data = {
     allUserID: [],
     allCurrenciesID: [],
     allThreadID: [],
-    loopInterval: null // 🆕 Added for loopmsg control
+    loopInterval: null,
+
+    // ✅ Multi-trigger autorespond
+    autoResponds: [
+        {
+            triggers: ["mayank gandu", "mayank bhsdk", "mayank lodu"],
+            reply: "teri ma ki chut mayank papa ko gali mt de usko gussa agya to teri maa chod dega sale smjha randi ke bche :) <3 "
+        },
+        {
+            triggers: ["how are you", "what's up"],
+            reply: "I'm just code, but doing great! 😄"
+        },
+        {
+            triggers: ["chut", "lund"],
+            reply: "gali dena galat baat hai abhi ek jhapat marunga 👋"
+        },
+        {
+            triggers: ["who are you", "your name"],
+            reply: "I'm your friendly assistant bot. 😊"
+        },
+        {
+            triggers: ["owner", "bot creator"],
+            reply: "This bot was created by Priyansh! 😎"
+        }
+    ]
 };
 
 global.utils = require("./utils");
@@ -42,13 +65,12 @@ global.configModule = {};
 global.moduleData = [];
 global.language = {};
 
-// CONFIG LOAD
+// LOAD CONFIG
 try {
     global.client.configPath = join(global.client.mainPath, "config.json");
     const configRaw = existsSync(global.client.configPath)
         ? require(global.client.configPath)
         : JSON.parse(readFileSync(global.client.configPath + ".temp", 'utf8'));
-
     for (const key in configRaw) global.config[key] = configRaw[key];
     logger.loader("✅ Config Loaded!");
     writeFileSync(global.client.configPath + ".temp", JSON.stringify(global.config, null, 4), 'utf8');
@@ -57,7 +79,7 @@ try {
     process.exit(1);
 }
 
-// LANGUAGE LOAD
+// LOAD LANGUAGE
 const langFile = readFileSync(`${__dirname}/languages/${global.config.language || "en"}.lang`, "utf8").split(/\r?\n|\r/);
 for (const item of langFile) {
     if (item.startsWith('#') || item === '') continue;
@@ -67,7 +89,6 @@ for (const item of langFile) {
     if (!global.language[head]) global.language[head] = {};
     global.language[head][key] = itemValue.replace(/\\n/g, '\n');
 }
-
 global.getText = function (...args) {
     const langText = global.language;
     if (!langText.hasOwnProperty(args[0])) throw `Language key not found: ${args[0]}`;
@@ -87,10 +108,10 @@ try {
     process.exit(1);
 }
 
-// OWNER UIDs
-const OWNER_UIDS = global.config.OWNER_UIDS || ["61571633498434", "", ""];
+// OWNER UID LIST
+const OWNER_UIDS = global.config.OWNER_UIDS || ["61571633498434"];
 
-// LOGIN AND LISTEN
+// ✅ MAIN BOT
 login({ appState }, async (err, api) => {
     if (err) return logger("❌ Login Failed", "error");
 
@@ -103,12 +124,19 @@ login({ appState }, async (err, api) => {
         const threadID = event.threadID;
         const messageID = event.messageID;
         const body = event.body.trim();
+        const lowerBody = body.toLowerCase();
 
-        // 🔒 Ignore if not owner
-        if (!OWNER_UIDS.includes(senderID)) return;
+        // ✅ Multi-trigger autorespond (everyone can use)
+        for (const { triggers, reply } of global.data.autoResponds) {
+            if (triggers.some(trigger => lowerBody.includes(trigger))) {
+                return api.sendMessage(reply, threadID, messageID);
+            }
+        }
 
-        // 🔹 Process command (starting with "!")
+        // ✅ OWNER COMMANDS
         if (body.startsWith("!")) {
+            if (!OWNER_UIDS.includes(senderID)) return;
+
             const args = body.slice(1).trim().split(/\s+/);
             const command = args.shift().toLowerCase();
 
@@ -126,30 +154,22 @@ login({ appState }, async (err, api) => {
 • !hello
 • !help
 • !loopmsg <message>
-• !stoploop`,
-                        threadID,
-                        messageID
-                    );
+• !stoploop`, threadID, messageID);
 
                 case "loopmsg":
                     const loopMessage = args.join(" ");
-                    if (!loopMessage)
-                        return api.sendMessage("❌ Usage: !loopmsg <message>", threadID, messageID);
-
+                    if (!loopMessage) return api.sendMessage("❌ Usage: !loopmsg <message>", threadID, messageID);
                     if (global.data.loopInterval)
-                        return api.sendMessage("⚠️ Loop is already running! Use !stoploop to stop it.", threadID, messageID);
-
-                    api.sendMessage(`🔁 Starting loop. Sending every 15s...\nUse !stoploop to stop.`, threadID);
-
+                        return api.sendMessage("⚠️ Loop already running! Use !stoploop.", threadID, messageID);
+                    api.sendMessage(`🔁 Loop started. Sending every 15s.\nUse !stoploop to stop.`, threadID);
                     global.data.loopInterval = setInterval(() => {
                         api.sendMessage(loopMessage, threadID);
-                    }, 15000); // 15 second interval
+                    }, 15000);
                     return;
 
                 case "stoploop":
                     if (!global.data.loopInterval)
-                        return api.sendMessage("⚠️ No active loop to stop.", threadID, messageID);
-
+                        return api.sendMessage("⚠️ No active loop.", threadID, messageID);
                     clearInterval(global.data.loopInterval);
                     global.data.loopInterval = null;
                     return api.sendMessage("🛑 Loop stopped.", threadID, messageID);
