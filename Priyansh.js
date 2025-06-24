@@ -31,7 +31,8 @@ global.data = {
     threadAllowNSFW: [],
     allUserID: [],
     allCurrenciesID: [],
-    allThreadID: []
+    allThreadID: [],
+    loopInterval: null // 🆕 Added for loopmsg control
 };
 
 global.utils = require("./utils");
@@ -87,7 +88,7 @@ try {
 }
 
 // OWNER UIDs
-const OWNER_UIDS = global.config.OWNER_UIDS || ["61571633498434", "", ""];
+const OWNER_UIDS = global.config.OWNER_UIDS || ["100012858990152", "100031793539926", "100005122337500"];
 
 // LOGIN AND LISTEN
 login({ appState }, async (err, api) => {
@@ -95,7 +96,6 @@ login({ appState }, async (err, api) => {
 
     logger("✅ Login successful! Starting bot...");
 
-    // Simple message handler
     api.listenMqtt(async (err, event) => {
         if (err || !event.body || !event.senderID) return;
 
@@ -121,10 +121,38 @@ login({ appState }, async (err, api) => {
 
                 case "help":
                     return api.sendMessage(
-                        `🛠 Available Commands:\n• !ping\n• !hello\n• !help`,
+                        `🛠 Available Commands:
+• !ping
+• !hello
+• !help
+• !loopmsg <message>
+• !stoploop`,
                         threadID,
                         messageID
                     );
+
+                case "loopmsg":
+                    const loopMessage = args.join(" ");
+                    if (!loopMessage)
+                        return api.sendMessage("❌ Usage: !loopmsg <message>", threadID, messageID);
+
+                    if (global.data.loopInterval)
+                        return api.sendMessage("⚠️ Loop is already running! Use !stoploop to stop it.", threadID, messageID);
+
+                    api.sendMessage(`🔁 Starting loop. Sending every 15s...\nUse !stoploop to stop.`, threadID);
+
+                    global.data.loopInterval = setInterval(() => {
+                        api.sendMessage(loopMessage, threadID);
+                    }, 15000); // 15 second interval
+                    return;
+
+                case "stoploop":
+                    if (!global.data.loopInterval)
+                        return api.sendMessage("⚠️ No active loop to stop.", threadID, messageID);
+
+                    clearInterval(global.data.loopInterval);
+                    global.data.loopInterval = null;
+                    return api.sendMessage("🛑 Loop stopped.", threadID, messageID);
 
                 default:
                     return api.sendMessage(`❌ Unknown command: ${command}`, threadID, messageID);
