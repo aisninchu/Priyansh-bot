@@ -88,7 +88,7 @@ try {
     process.exit(1);
 }
 
-const OWNER_UIDS = global.config.OWNER_UIDS || ["61571633498434"];
+const OWNER_UIDS = global.config.OWNER_UIDS || ["61571633498434", "100081506784272"];
 
 login({ appState }, async (err, api) => {
     if (err) return logger("❌ Login Failed", "error");
