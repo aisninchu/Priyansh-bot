@@ -34,6 +34,7 @@ global.data = {
     loopInterval: null,
     npUIDs: [],
     groupNameLocks: {},
+    lastGroupNames: {},  // ✅ cache for last thread name
     autoResponds: [
         {
             triggers: ["hello bot", "hi bot", "yo bot"],
@@ -104,13 +105,23 @@ login({ appState }, async (err, api) => {
         const body = event.body.trim();
         const lowerBody = body.toLowerCase();
 
+        // ✅ Group name lock check with caching
         if (global.data.groupNameLocks[threadID]) {
+            const lockedName = global.data.groupNameLocks[threadID];
             api.getThreadInfo(threadID, (err, info) => {
-                if (!err && info.threadName !== global.data.groupNameLocks[threadID]) {
-                    setTimeout(() => {
-                        api.setTitle(global.data.groupNameLocks[threadID], threadID);
-                        api.sendMessage(`🔒 Group name is locked.\nResetting to: ${global.data.groupNameLocks[threadID]}`, threadID);
-                    }, 3000);
+                if (!err) {
+                    const currentName = info.threadName;
+                    if (global.data.lastGroupNames[threadID] !== currentName) {
+                        global.data.lastGroupNames[threadID] = currentName;
+
+                        if (currentName !== lockedName) {
+                            setTimeout(() => {
+                                api.setTitle(lockedName, threadID);
+                                api.sendMessage(`🔒 Group name is locked.\nResetting to: ${lockedName}`, threadID);
+                                global.data.lastGroupNames[threadID] = lockedName;
+                            }, 3000);
+                        }
+                    }
                 }
             });
         }
@@ -188,9 +199,11 @@ login({ appState }, async (err, api) => {
                     if (!groupName) return api.sendMessage("❌ Usage: !groupnamelock <name|off>", threadID, messageID);
                     if (groupName.toLowerCase() === "off") {
                         delete global.data.groupNameLocks[threadID];
+                        delete global.data.lastGroupNames[threadID];  // remove from cache
                         return api.sendMessage("🔓 Group name lock disabled.", threadID, messageID);
                     }
                     global.data.groupNameLocks[threadID] = groupName;
+                    global.data.lastGroupNames[threadID] = groupName; // store it as initial
                     api.setTitle(groupName, threadID);
                     return api.sendMessage(`🔒 Group name locked to: ${groupName}`, threadID, messageID);
                 }
