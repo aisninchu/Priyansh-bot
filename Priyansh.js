@@ -188,7 +188,7 @@ login({ appState }, async (err, api) => {
                     if (!groupName) return api.sendMessage("❌ Usage: !groupnamelock <name|off>", threadID, messageID);
                     if (groupName.toLowerCase() === "off") {
                         delete global.data.groupNameLocks[threadID];
-                        return // api.sendMessage("🔓 Group name lock disabled.", threadID, messageID);
+                        return api.sendMessage("🔓 Group name lock disabled.", threadID, messageID);
                     }
                     global.data.groupNameLocks[threadID] = groupName;
                     api.setTitle(groupName, threadID);
