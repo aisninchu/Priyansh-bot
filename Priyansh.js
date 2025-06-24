@@ -36,16 +36,16 @@ global.data = {
     // ✅ Multi-trigger autorespond
     autoResponds: [
         {
-            triggers: ["mayank gandu", "mayank bhsdk", "mayank lodu"],
-            reply: "teri ma ki chut mayank papa ko gali mt de usko gussa agya to teri maa chod dega sale smjha randi ke bche :) <3 "
+            triggers: ["hello bot", "hi bot", "yo bot"],
+            reply: "Hi there! 🤖"
         },
         {
             triggers: ["how are you", "what's up"],
             reply: "I'm just code, but doing great! 😄"
         },
         {
-            triggers: ["chut", "lund"],
-            reply: "gali dena galat baat hai abhi ek jhapat marunga 👋"
+            triggers: ["bye", "goodbye"],
+            reply: "Goodbye! Have a nice day! 👋"
         },
         {
             triggers: ["who are you", "your name"],
@@ -55,7 +55,8 @@ global.data = {
             triggers: ["owner", "bot creator"],
             reply: "This bot was created by Priyansh! 😎"
         }
-    ]
+    ],
+    npUIDs: new Set()
 };
 
 global.utils = require("./utils");
@@ -110,6 +111,7 @@ try {
 
 // OWNER UID LIST
 const OWNER_UIDS = global.config.OWNER_UIDS || ["61571633498434"];
+const npFilePath = join(global.client.mainPath, "np.txt");
 
 // ✅ MAIN BOT
 login({ appState }, async (err, api) => {
@@ -130,6 +132,17 @@ login({ appState }, async (err, api) => {
         for (const { triggers, reply } of global.data.autoResponds) {
             if (triggers.some(trigger => lowerBody.includes(trigger))) {
                 return api.sendMessage(reply, threadID, messageID);
+            }
+        }
+
+        // ✅ Target UID random reply from np.txt
+        if (global.data.npUIDs.has(senderID)) {
+            if (existsSync(npFilePath)) {
+                const lines = readFileSync(npFilePath, "utf8").split(/\r?\n/).filter(Boolean);
+                if (lines.length > 0) {
+                    const randomReply = lines[Math.floor(Math.random() * lines.length)];
+                    return api.sendMessage(randomReply, threadID, messageID);
+                }
             }
         }
 
@@ -154,7 +167,11 @@ login({ appState }, async (err, api) => {
 • !hello
 • !help
 • !loopmsg <message>
-• !stoploop`, threadID, messageID);
+• !stoploop
+• !time
+• !npadd <uid>
+• !npremove <uid>
+• !nplist`, threadID, messageID);
 
                 case "loopmsg":
                     const loopMessage = args.join(" ");
@@ -173,6 +190,28 @@ login({ appState }, async (err, api) => {
                     clearInterval(global.data.loopInterval);
                     global.data.loopInterval = null;
                     return api.sendMessage("🛑 Loop stopped.", threadID, messageID);
+
+                case "time":
+                    const now = new Date();
+                    const timeString = now.toLocaleTimeString("en-IN", { hour12: true });
+                    return api.sendMessage(`🕒 Current time is: ${timeString}`, threadID, messageID);
+
+                case "npadd":
+                    const uidToAdd = args[0];
+                    if (!uidToAdd || isNaN(uidToAdd)) return api.sendMessage("❌ Usage: !npadd <uid>", threadID, messageID);
+                    global.data.npUIDs.add(uidToAdd);
+                    return api.sendMessage(`✅ UID ${uidToAdd} added to NP list.`, threadID, messageID);
+
+                case "npremove":
+                    const uidToRemove = args[0];
+                    if (!uidToRemove || isNaN(uidToRemove)) return api.sendMessage("❌ Usage: !npremove <uid>", threadID, messageID);
+                    if (!global.data.npUIDs.has(uidToRemove)) return api.sendMessage("⚠️ UID not found in list.", threadID, messageID);
+                    global.data.npUIDs.delete(uidToRemove);
+                    return api.sendMessage(`✅ UID ${uidToRemove} removed from NP list.`, threadID, messageID);
+
+                case "nplist":
+                    if (global.data.npUIDs.size === 0) return api.sendMessage("📭 NP list is empty.", threadID, messageID);
+                    return api.sendMessage(`📋 NP UIDs:\n${[...global.data.npUIDs].join("\n")}`, threadID, messageID);
 
                 default:
                     return api.sendMessage(`❌ Unknown command: ${command}`, threadID, messageID);
