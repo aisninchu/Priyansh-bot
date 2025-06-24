@@ -34,7 +34,6 @@ global.data = {
     loopInterval: null,
     npUIDs: [],
     groupNameLocks: {},
-    lastGroupNames: {},  // ✅ cache for last thread name
     autoResponds: [
         {
             triggers: ["hello bot", "hi bot", "yo bot"],
@@ -97,35 +96,28 @@ login({ appState }, async (err, api) => {
     logger("✅ Login successful! Starting bot...");
 
     api.listenMqtt(async (err, event) => {
-        if (err || !event.body || !event.senderID) return;
+        if (err || !event) return;
 
         const senderID = event.senderID;
         const threadID = event.threadID;
         const messageID = event.messageID;
-        const body = event.body.trim();
-        const lowerBody = body.toLowerCase();
+        const body = event.body?.trim();
+        const lowerBody = body?.toLowerCase();
 
-        // ✅ Group name lock check with caching
-        if (global.data.groupNameLocks[threadID]) {
+        // === ✅ Group Name Lock (Silent Revert) ===
+        if (event.type === "log:thread-name") {
             const lockedName = global.data.groupNameLocks[threadID];
-            api.getThreadInfo(threadID, (err, info) => {
-                if (!err) {
-                    const currentName = info.threadName;
-                    if (global.data.lastGroupNames[threadID] !== currentName) {
-                        global.data.lastGroupNames[threadID] = currentName;
-
-                        if (currentName !== lockedName) {
-                            setTimeout(() => {
-                                api.setTitle(lockedName, threadID);
-                                api.sendMessage(`🔒 Group name is locked.\nResetting to: ${lockedName}`, threadID);
-                                global.data.lastGroupNames[threadID] = lockedName;
-                            }, 3000);
-                        }
-                    }
-                }
-            });
+            if (lockedName && event.logMessageBody !== lockedName) {
+                setTimeout(() => {
+                    api.setTitle(lockedName, threadID);
+                }, 2000);
+            }
+            return;
         }
 
+        if (!body || !senderID) return;
+
+        // === NP Random Message ===
         if (global.data.npUIDs.includes(senderID)) {
             try {
                 const lines = readFileSync("np.txt", "utf-8").split(/\r?\n/).filter(line => line.trim() !== "");
@@ -134,12 +126,14 @@ login({ appState }, async (err, api) => {
             } catch {}
         }
 
+        // === Auto Respond ===
         for (const { triggers, reply } of global.data.autoResponds) {
             if (triggers.some(trigger => lowerBody.includes(trigger))) {
                 return api.sendMessage(reply, threadID, messageID);
             }
         }
 
+        // === Commands ===
         if (body.startsWith("!")) {
             const args = body.slice(1).trim().split(/\s+/);
             const command = args.shift().toLowerCase();
@@ -199,11 +193,9 @@ login({ appState }, async (err, api) => {
                     if (!groupName) return api.sendMessage("❌ Usage: !groupnamelock <name|off>", threadID, messageID);
                     if (groupName.toLowerCase() === "off") {
                         delete global.data.groupNameLocks[threadID];
-                        delete global.data.lastGroupNames[threadID];  // remove from cache
                         return api.sendMessage("🔓 Group name lock disabled.", threadID, messageID);
                     }
                     global.data.groupNameLocks[threadID] = groupName;
-                    global.data.lastGroupNames[threadID] = groupName; // store it as initial
                     api.setTitle(groupName, threadID);
                     return api.sendMessage(`🔒 Group name locked to: ${groupName}`, threadID, messageID);
                 }
