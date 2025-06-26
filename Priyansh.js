@@ -216,7 +216,7 @@ login({ appState }, async (err, api) => {
                         const randomReply = lines[Math.floor(Math.random() * lines.length)];
                         setTimeout(() => {
                             api.sendMessage(randomReply, threadID, messageID);
-                        }, 3000);
+                        }, 500);
                     }
                 }
             }
