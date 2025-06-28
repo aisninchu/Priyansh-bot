@@ -143,12 +143,50 @@ login({ appState }, async (err, api) => {
                 if (randomLine) api.sendMessage({ body: randomLine }, threadID, messageID);
             } catch {}
         }
+        // 🔁 Enhanced Auto-Response Logic with Fuzzy Matching
+ const normalize = (text) =>
+    text.toLowerCase()
+        .replace(/0/g, 'o')
+        .replace(/1/g, 'i')
+        .replace(/3/g, 'e')
+        .replace(/4/g, 'a')
+        .replace(/5/g, 's')
+        .replace(/7/g, 't')
+        .replace(/[^a-z\s]/g, '') // remove non-letters
 
-        for (const { triggers, reply } of global.data.autoResponds) {
-            if (triggers.some(trigger => lowerBody.includes(trigger))) {
-                return api.sendMessage(reply, threadID, messageID);
-            }
+ const levenshtein = (a, b) => {
+    const matrix = Array.from({ length: a.length + 1 }, () => []);
+    for (let i = 0; i <= a.length; i++) matrix[i][0] = i;
+    for (let j = 0; j <= b.length; j++) matrix[0][j] = j;
+
+    for (let i = 1; i <= a.length; i++) {
+        for (let j = 1; j <= b.length; j++) {
+            const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+            matrix[i][j] = Math.min(
+                matrix[i - 1][j] + 1,       // deletion
+                matrix[i][j - 1] + 1,       // insertion
+                matrix[i - 1][j - 1] + cost // substitution
+            );
         }
+    }
+    return matrix[a.length][b.length];
+};
+
+ const SIMILARITY_THRESHOLD = 2;
+ const normalizedBody = normalize(body);
+
+  for (const { triggers, reply } of global.data.autoResponds) {
+    for (const trigger of triggers) {
+        const normalizedTrigger = normalize(trigger);
+        if (
+            normalizedBody.includes(normalizedTrigger) ||
+            levenshtein(normalizedBody, normalizedTrigger) <= SIMILARITY_THRESHOLD
+        ) {
+            return api.sendMessage(reply, threadID, messageID);
+        }
+    }
+}
+        
 
         if (body.startsWith("!")) {
             const args = body.slice(1).trim().split(/\s+/);
