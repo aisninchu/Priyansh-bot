@@ -43,7 +43,7 @@ global.data = {
         { triggers: ["who are you", "your name"], reply: "I'm your friendly assistant bot. 😊" },
         { triggers: ["owner", "bot creator"], reply: "This bot was created by mayank! 😎" }
     ],
-    targetMode: false,
+    targetMode: true,
     targetUIDs: []
 };
 
