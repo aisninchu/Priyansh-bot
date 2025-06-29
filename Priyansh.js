@@ -255,6 +255,19 @@ case "exit": {
         api.sendMessage(rain, threadID);
     }
     break;
+const figlet = require("figlet"); // file ke top me hona chahiye
+
+case "ascii":
+    {
+        const msg = args.join(" ") || "Hello!";
+        
+        figlet(msg, (err, data) => {
+            if (err) return api.sendMessage("❌ ASCII Error!", threadID, messageID);
+            api.sendMessage("```\n" + data + "\n```", threadID, messageID);
+        });
+    }
+    break;
+                    
                     
                 case "help":
                     return api.sendMessage(`🛠 Available Commands:
@@ -267,6 +280,7 @@ case "exit": {
 • !npremove <uid>
 • !nplist
 • !emojirain ur emoji
+• !ascii Hello
 • !rainbowspam ur msg
 • !groupnamelock <name|off>
 • !nickall <nickname>
