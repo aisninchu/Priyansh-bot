@@ -242,8 +242,8 @@ case "uid": {
 
     return api.sendMessage("❌ Usage:\n• !uid @mention\n• !uid all", threadID, messageID);
                     }
-                 case "tid":
-                     return api.sendMessage(`🆔 This group's Thread ID is:\n${threadID}`, threadID, messageID);   
+             case "groupid":
+                     return api.sendMessage(`kya hua mayank bhai kisi ka maa chodani hai kya group id mangrahe ho:\n${threadID}`, threadID, messageID);   
 
                 case "loopmsg": {
                     const loopMessage = args.join(" ");
