@@ -247,8 +247,6 @@ for (const { triggers, reply } of global.data.autoResponds) {
 • !mkc <prefix> | <seconds>
 • !stopmkc
 • !targetstart`, threadID, messageID);
-• !mkcib <uid>
-• !stopib <uid>;
 case "uid": {
     // Check if user mentioned someone
     const mentions = event.mentions;
