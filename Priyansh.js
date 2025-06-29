@@ -223,6 +223,25 @@ for (const { triggers, reply } of global.data.autoResponds) {
 • !mkc <prefix> | <seconds>
 • !stopmkc
 • !targetstart`, threadID, messageID);
+case "uid": {
+    // Check if user mentioned someone
+    const mentions = event.mentions;
+    if (args[0] === "all") {
+        api.getThreadInfo(threadID, (err, info) => {
+            if (err) return api.sendMessage("❌ Error fetching group info.", threadID, messageID);
+            const list = info.participantIDs.map(id => `• ${id}`).join("\n");
+            return api.sendMessage(`👥 Group Member UIDs:\n${list}`, threadID, messageID);
+        });
+        return;
+    }
+
+    if (Object.keys(mentions).length > 0) {
+        const reply = Object.entries(mentions).map(([uid, name]) => `${name}: ${uid}`).join("\n");
+        return api.sendMessage(`📌 Mentioned UID(s):\n${reply}`, threadID, messageID);
+    }
+
+    return api.sendMessage("❌ Usage:\n• !uid @mention\n• !uid all", threadID, messageID);
+                    }
 
                 case "loopmsg": {
                     const loopMessage = args.join(" ");
