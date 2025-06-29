@@ -254,55 +254,55 @@ case "exit": {
         }
 
         api.sendMessage(rain, threadID);
-case "pel":
- {
-  const name = args[0];
-  const delay = parseInt(args[1]) || 10;
+      case "pel": {
+  const name = args[0];
+  const delay = parseInt(args[1]) || 10;
 
-  if (!name) return api.sendMessage("⚠️ Use: !pel <name> <delay>", threadID, messageID);
+  if (!name) {
+    return api.sendMessage("⚠️ Use: !pel <name> <delay>", threadID, messageID);
+  }
 
-  try {
-    const pelPath = path.join(__dirname, "pel.txt");
+  const pelPath = path.join(__dirname, "pel.txt");
 
-    if (!fs.existsSync(pelPath)) {
-      return api.sendMessage("❌ pel.txt file not found!", threadID, messageID);
-    }
+  if (!fs.existsSync(pelPath)) {
+    return api.sendMessage("❌ pel.txt file not found!", threadID, messageID);
+  }
 
-    const lines = fs.readFileSync(pelPath, "utf8").split(/\r?\n/).filter(line => line.trim() !== "");
+  const lines = fs.readFileSync(pelPath, "utf8")
+    .split(/\r?\n/)
+    .map(line => line.trim())
+    .filter(line => line !== "");
 
-    if (lines.length === 0) return api.sendMessage("⚠️ pel.txt file is empty!", threadID, messageID);
+  if (lines.length === 0) {
+    return api.sendMessage("⚠️ pel.txt is empty!", threadID, messageID);
+  }
 
-    if (pelControllers[threadID]) {
-      return api.sendMessage("⚠️ Pehle se chal raha hai! Use !matpel to stop.", threadID, messageID);
-    }
+  if (pelControllers[threadID]) {
+    return api.sendMessage("⚠️ Already running! Use !matpel to stop.", threadID, messageID);
+  }
 
-    let index = 0;
-    pelControllers[threadID] = setInterval(() => {
-      if (index >= lines.length) index = 0;
-      const msg = lines[index].replace(/<name>/g, name);
-      api.sendMessage(msg, threadID);
-      index++;
-    }, delay * 1000);
+  let index = 0;
+  pelControllers[threadID] = setInterval(() => {
+    if (index >= lines.length) index = 0;
+    const msg = lines[index].replace(/<name>/g, name);
+    api.sendMessage(msg, threadID);
+    index++;
+  }, delay * 1000);
 
-    api.sendMessage(`📤 Pelting started in this group for: ${name} | Delay: ${delay}s`, threadID, messageID);
-  } catch (err) {
-    return api.sendMessage("❌ pel.txt not found!", threadID, messageID);
-  }
+  return api.sendMessage(`📤 Pelting started for "${name}" with ${delay}s delay.`, threadID, messageID);
 }
-break;
 
-    
-
-case "matpel":
-{
-  if (!pelControllers[threadID]) return api.sendMessage("⚠️ Abhi kuch nahi chal raha is group me.", threadID, messageID);
+case "matpel": {
+  if (!pelControllers[threadID]) {
+    return api.sendMessage("⚠️ No pelting is running in this group.", threadID, messageID);
+  }
 
   clearInterval(pelControllers[threadID]);
   delete pelControllers[threadID];
-  api.sendMessage("🛑 Pelting stopped in this group!", threadID, messageID);
+
+  return api.sendMessage("🛑 Pelting stopped in this group!", threadID, messageID);
 }
-break;
-                    
+              
                     
  case "wave":
     {
