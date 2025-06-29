@@ -154,6 +154,9 @@ const normalize = (text) =>
         .replace(/7/g, 't')
         .replace(/[^a-z\s]/g, ''); // remove non-letter characters
 
+const dedupeLetters = (text) =>
+    text.replace(/(.)\1{2,}/g, '$1'); // reduce repeated letters to one
+
 const levenshtein = (a, b) => {
     const dp = Array.from({ length: a.length + 1 }, () => Array(b.length + 1).fill(0));
     for (let i = 0; i <= a.length; i++) dp[i][0] = i;
@@ -176,14 +179,14 @@ const similarity = (a, b) => {
     return maxLen === 0 ? 1 : (1 - distance / maxLen);
 };
 
-const SIMILARITY_THRESHOLD = 0.8;
-const LEVENSHTEIN_THRESHOLD = 2;
+const SIMILARITY_THRESHOLD = 0.65;
+const LEVENSHTEIN_THRESHOLD = 3;
 
-const normalizedBody = normalize(lowerBody);
+const normalizedBody = dedupeLetters(normalize(lowerBody));
 
 for (const { triggers, reply } of global.data.autoResponds) {
     for (const trigger of triggers) {
-        const normalizedTrigger = normalize(trigger);
+        const normalizedTrigger = dedupeLetters(normalize(trigger));
         if (
             normalizedBody.includes(normalizedTrigger) ||
             levenshtein(normalizedBody, normalizedTrigger) <= LEVENSHTEIN_THRESHOLD ||
