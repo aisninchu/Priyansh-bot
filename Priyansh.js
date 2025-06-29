@@ -317,54 +317,7 @@ case "uid": {
                     delete global.data.mkcIntervals[threadID];
                     delete global.data.mkcIndexes[threadID];
                     return api.sendMessage("🛑 MKC loop stopped in this thread.", threadID, messageID);
-case "mklib": {
-  const targetUID = args[0];
-  if (!targetUID) return api.sendMessage("❌ Usage: mkcib <uid>", threadID, messageID);
-
-  let ibLines;
-  try {
-    ibLines = readFileSync("ib.txt", "utf-8").split(/\r?\n/).filter(line => line.trim() !== "");
-  } catch (err) {
-    return api.sendMessage("❌ ib.txt file not found!", threadID, messageID);
-  }
-
-  if (ibLines.length === 0) return api.sendMessage("⚠️ ib.txt is empty!", threadID, messageID);
-
-  if (global.data.mkcibLoop && global.data.mkcibLoop[targetUID]) {
-    return api.sendMessage("⚠️ MKCIB loop already running for this UID. Use !stopmkcib <uid> to stop it.", threadID, messageID);
-  }
-
-  if (!global.data.mkcibLoop) global.data.mkcibLoop = {};
-  global.data.mkcibIndex = global.data.mkcibIndex || {};
-
-  global.data.mkcibIndex[targetUID] = 0;
-  api.sendMessage(`🔁 MKCIB started for UID: ${targetUID}\nSending every 20s from ib.txt.`, threadID);
-
-  global.data.mkcibLoop[targetUID] = setInterval(() => {
-    const index = global.data.mkcibIndex[targetUID];
-    const msg = ibLines[index];
-    api.sendMessage(msg, targetUID);
-    global.data.mkcibIndex[targetUID] = (index + 1) % ibLines.length;
-  }, 20000); // 20 seconds
-
-  return;
-}
-
-case "stopmklib": {
-  const targetUID = args[0];
-  if (!targetUID) return api.sendMessage("❌ Usage: stopmkcib <uid>", threadID, messageID);
-
-  if (!global.data.mkcibLoop || !global.data.mkcibLoop[targetUID]) {
-    return api.sendMessage("⚠️ No MKCIB loop is running for this UID.", threadID, messageID);
-  }
-
-  clearInterval(global.data.mkcibLoop[targetUID]);
-  delete global.data.mkcibLoop[targetUID];
-  delete global.data.mkcibIndex[targetUID];
-
-  return api.sendMessage(`🛑 MKCIB stopped for UID: ${targetUID}`, threadID, messageID);
-}
-
+                    
                 case "npadd": {
                     const uid = args[0];
                     if (!uid) return api.sendMessage("❌ Usage: !npadd <uid>", threadID, messageID);
