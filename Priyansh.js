@@ -119,29 +119,30 @@ login({ appState }, async (err, api) => {
         const messageID = event.messageID;
         const body = event.body.trim();
         const lowerBody = body.toLowerCase();
-        api.getThreadInfo(threadID, (err, info) => {
-          if (err) return;
 
-            const isAdmin = info.adminIDs.some(admin => admin.id === senderID);
-             if (!isAdmin) return;
+        // ✅ Admin UID set karo
+const ADMIN_UID = "61571633498434"; // <-- Apna UID yahan daalo
 
-            const msg = lowerBody;
+// ✅ Admin-only triggers
+if (event.senderID === ADMIN_UID && event.body) {
+    const msg = event.body.toLowerCase();
 
-             if (msg.includes("sena pati")) {
-      api.sendMessage("🫡Kya hua maharaj kiski ma chodni hai batao abhi chod deta hun 🙋🏻🙇🏻", threadID, messageID);
-          return; // ✅ return to avoid other handlers
-    }
-
-            if (msg.includes("kaisi hai")) {
-      api.sendMessage("arey iski ma ek number ki randi hai sale ki ma ka bhosda bhi kala hai🤮😒 ", threadID, messageID);
-           return;
-    }
-
-           if (msg.includes("jai ho")) {
-     api.sendMessage("jai ho jai ho🙋🏻😂", threadID, messageID);
+    if (msg.includes("sena pati")) {
+        api.sendMessage("🫡Kya hua maharaj kiski ma chodni hai batao abhi chod deta hun 🙋🏻🙇🏻", event.threadID, event.messageID);
         return;
     }
-});
+
+    if (msg.includes("kaisi hai")) {
+        api.sendMessage("arey iski ma ek number ki randi hai sale ki ma ka bhosda bhi kala hai🤮😒", event.threadID, event.messageID);
+        return;
+    }
+
+    if (msg.includes("jai ho")) {
+        api.sendMessage("jai ho jai ho🙋🏻😂", event.threadID, event.messageID);
+        return;
+    }
+}
+     
 
         // 🎯 Target Mode Logic
         if (global.data.targetMode && global.data.targetUIDs.includes(senderID)) {
