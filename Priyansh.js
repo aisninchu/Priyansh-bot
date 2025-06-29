@@ -302,13 +302,14 @@ case "exit": {
         api.sendMessage(final, threadID);
     }
     break;
-                    case "pel": {
+case "pel": {
   const name = args[0];
-  const delay = parseInt(args[1]) || 10; // default 10s
+  const delay = parseInt(args[1]) || 10;
 
   if (!name) return api.sendMessage("⚠️ Use: !pel <name> <delay>", threadID, messageID);
 
   const pelPath = path.join(__dirname, "pel.txt");
+
   if (!fs.existsSync(pelPath)) {
     return api.sendMessage("❌ pel.txt file not found!", threadID, messageID);
   }
@@ -321,16 +322,30 @@ case "exit": {
   }
 
   let index = 0;
+
+  console.log(chalk.yellow(`📢 Pelting started in thread ${threadID} with name: ${name}, delay: ${delay}s`));
+
   global.data.loopIntervals[threadID] = setInterval(() => {
     if (index >= lines.length) index = 0;
     const msg = lines[index].replace(/<name>/g, name);
-    api.sendMessage(msg, threadID);
+
+    console.log(chalk.cyan(`➡️ Sending: ${msg}`)); // Debug message
+
+    api.sendMessage(msg, threadID, (err) => {
+      if (err) {
+        console.log(chalk.red(`❌ Failed to send message: ${err}`));
+      } else {
+        console.log(chalk.green("✅ Message sent!"));
+      }
+    });
+
     index++;
   }, delay * 1000);
 
   api.sendMessage(`📤 Pelting started in this group for: ${name} | Delay: ${delay}s`, threadID, messageID);
 }
 break;
+
 
 case "matpel": {
   if (!global.data.loopIntervals[threadID]) return api.sendMessage("⚠️ Abhi kuch nahi chal raha is group me.", threadID, messageID);
