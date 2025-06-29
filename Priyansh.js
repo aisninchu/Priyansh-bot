@@ -304,18 +304,16 @@ case "exit": {
     break;
 case "pel": {
   const name = args[0];
-  const delay = parseInt(args[1]) || 10;
+  const delay = parseInt(args[1]) || 10; // default 10s
 
   if (!name) return api.sendMessage("⚠️ Use: !pel <name> <delay>", threadID, messageID);
 
-  const pelPath = require("path").resolve(__dirname, "pel.txt");
-  console.log("PEL PATH:", pelPath, fs.existsSync(pelPath)); // Debug line
-
-  if (!fs.existsSync(pelPath)) {
+  const pelPath = join(__dirname, "pel.txt"); // 🔁 Use destructured join
+  if (!existsSync(pelPath)) {
     return api.sendMessage("❌ pel.txt file not found!", threadID, messageID);
   }
 
-  const lines = fs.readFileSync(pelPath, "utf8").split(/\r?\n/).filter(line => line.trim() !== "");
+  const lines = readFileSync(pelPath, "utf8").split(/\r?\n/).filter(line => line.trim() !== "");
   if (lines.length === 0) return api.sendMessage("⚠️ pel.txt file is empty!", threadID, messageID);
 
   if (global.data.loopIntervals[threadID]) {
@@ -334,19 +332,15 @@ case "pel": {
 }
 break;
 
-
-
 case "matpel": {
-  if (!global.data.loopIntervals[threadID])
-    return api.sendMessage("⚠️ Kuch bhi nahi chal raha is group me.", threadID, messageID);
+  if (!global.data.loopIntervals[threadID]) return api.sendMessage("⚠️ Abhi kuch nahi chal raha is group me.", threadID, messageID);
 
-  clearInterval(global.data.loopIntervals[threadID]);
-  delete global.data.loopIntervals[threadID];
-  return api.sendMessage("🛑 Pelting stopped in this group.", threadID, messageID);
+  clearInterval(global.data.loopIntervals[threadID]);
+  delete global.data.loopIntervals[threadID];
+  api.sendMessage("🛑 Pelting stopped in this group!", threadID, messageID);
 }
 break;
-      
-           
+
                     
                 case "help":
                     return api.sendMessage(`🛠 Available Commands:
