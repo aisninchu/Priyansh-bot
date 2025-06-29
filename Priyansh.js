@@ -255,20 +255,21 @@ case "exit": {
 
         api.sendMessage(rain, threadID);
 case "pel":
-{
+ {
   const name = args[0];
   const delay = parseInt(args[1]) || 10;
 
   if (!name) return api.sendMessage("⚠️ Use: !pel <name> <delay>", threadID, messageID);
 
   try {
-    const pelPath = path.join(process.cwd(), "pel.txt"); // ✅ Main root se lena hai
+    const pelPath = path.join(__dirname, "pel.txt");
 
     if (!fs.existsSync(pelPath)) {
       return api.sendMessage("❌ pel.txt file not found!", threadID, messageID);
     }
 
     const lines = fs.readFileSync(pelPath, "utf8").split(/\r?\n/).filter(line => line.trim() !== "");
+
     if (lines.length === 0) return api.sendMessage("⚠️ pel.txt file is empty!", threadID, messageID);
 
     if (pelControllers[threadID]) {
@@ -283,12 +284,14 @@ case "pel":
       index++;
     }, delay * 1000);
 
-    api.sendMessage(`📤 Pelting started for: ${name} | Delay: ${delay}s`, threadID, messageID);
+    api.sendMessage(`📤 Pelting started in this group for: ${name} | Delay: ${delay}s`, threadID, messageID);
   } catch (err) {
-    return api.sendMessage("❌ Error reading pel.txt", threadID, messageID);
+    return api.sendMessage("❌ pel.txt not found!", threadID, messageID);
   }
 }
 break;
+
+    
 
 case "matpel":
 {
