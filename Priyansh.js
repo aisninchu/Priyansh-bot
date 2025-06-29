@@ -255,19 +255,21 @@ case "exit": {
         api.sendMessage(rain, threadID);
     }
     break;
-const figlet = require("figlet"); // file ke top me hona chahiye
-
-case "ascii":
+ case "spamline":
     {
-        const msg = args.join(" ") || "Hello!";
+        const times = parseInt(args[0]) || 5;
+        const msg = args.slice(1).join(" ") || "🚀 Message!";
+        if (times > 30) return api.sendMessage("❌ Max 30 allowed!", threadID, messageID);
         
-        figlet(msg, (err, data) => {
-            if (err) return api.sendMessage("❌ ASCII Error!", threadID, messageID);
-            api.sendMessage("```\n" + data + "\n```", threadID, messageID);
-        });
+        let final = "";
+        for (let i = 0; i < times; i++) {
+            final += `${msg}\n`;
+        }
+
+        api.sendMessage(final, threadID);
     }
     break;
-                    
+           
                     
                 case "help":
                     return api.sendMessage(`🛠 Available Commands:
@@ -280,7 +282,7 @@ case "ascii":
 • !npremove <uid>
 • !nplist
 • !emojirain ur emoji
-• !ascii Hello
+• !spamline 10 😎 Hello
 • !rainbowspam ur msg
 • !groupnamelock <name|off>
 • !nickall <nickname>
