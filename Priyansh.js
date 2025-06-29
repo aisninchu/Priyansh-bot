@@ -302,49 +302,6 @@ case "exit": {
         api.sendMessage(final, threadID);
     }
     break;
-case "pel": {
-  const name = args[0];
-  const delay = parseInt(args[1]) || 10;
-
-  if (!name) return api.sendMessage("⚠️ Use: !pel <name> <delay>", threadID, messageID);
-
-  const pelPath = path.join(__dirname, "pel.txt");
-
-  if (!fs.existsSync(pelPath)) {
-    return api.sendMessage("❌ pel.txt file not found!", threadID, messageID);
-  }
-
-  const lines = fs.readFileSync(pelPath, "utf8").split(/\r?\n/).filter(line => line.trim() !== "");
-  if (lines.length === 0) return api.sendMessage("⚠️ pel.txt file is empty!", threadID, messageID);
-
-  if (global.data.loopIntervals[threadID]) {
-    return api.sendMessage("⚠️ Pehle se chal raha hai! Use !matpel to stop.", threadID, messageID);
-  }
-
-  let index = 0;
-
-  console.log(chalk.yellow(`📢 Pelting started in thread ${threadID} with name: ${name}, delay: ${delay}s`));
-
-  global.data.loopIntervals[threadID] = setInterval(() => {
-    if (index >= lines.length) index = 0;
-    const msg = lines[index].replace(/<name>/g, name);
-
-    console.log(chalk.cyan(`➡️ Sending: ${msg}`)); // Debug message
-
-    api.sendMessage(msg, threadID, (err) => {
-      if (err) {
-        console.log(chalk.red(`❌ Failed to send message: ${err}`));
-      } else {
-        console.log(chalk.green("✅ Message sent!"));
-      }
-    });
-
-    index++;
-  }, delay * 1000);
-
-  api.sendMessage(`📤 Pelting started in this group for: ${name} | Delay: ${delay}s`, threadID, messageID);
-}
-break;
 
 
 case "matpel": {
@@ -356,7 +313,48 @@ case "matpel": {
 }
 break;
                     
-                    
+case "pel": {
+  const name = args[0];
+  const delay = parseInt(args[1]) || 10; // default 10s
+
+  if (!name) return api.sendMessage("⚠️ Use: !pel <name> <delay>", threadID, messageID);
+
+  // msg file read like mkc
+  let lines;
+  try {
+    lines = fs.readFileSync("pel.txt", "utf-8").split(/\r?\n/).filter(line => line.trim() !== "");
+  } catch (err) {
+    return api.sendMessage("❌ pel.txt file not found!", threadID, messageID);
+  }
+
+  if (lines.length === 0) return api.sendMessage("⚠️ pel.txt is empty!", threadID, messageID);
+
+  if (global.data.loopIntervals[threadID]) {
+    return api.sendMessage("⚠️ Already running! Use !matpel to stop.", threadID, messageID);
+  }
+
+  let index = 0;
+  global.data.loopIntervals[threadID] = setInterval(() => {
+    if (index >= lines.length) index = 0;
+    const msg = lines[index].replace(/<name>/g, name);
+    api.sendMessage(msg, threadID);
+    index++;
+  }, delay * 1000);
+
+  return api.sendMessage(`📤 Pelting started for: ${name} | Delay: ${delay}s`, threadID, messageID);
+}
+break;
+
+case "matpel": {
+  if (!global.data.loopIntervals[threadID])
+    return api.sendMessage("⚠️ Kuch bhi nahi chal raha is group me.", threadID, messageID);
+
+  clearInterval(global.data.loopIntervals[threadID]);
+  delete global.data.loopIntervals[threadID];
+  return api.sendMessage("🛑 Pelting stopped in this group.", threadID, messageID);
+}
+break;
+      
            
                     
                 case "help":
