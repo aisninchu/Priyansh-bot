@@ -4,7 +4,6 @@ const { execSync } = require('child_process');
 const chalk = require('chalk');
 const logger = require("./utils/log.js");
 const login = require("fca-priyansh");
-const { readFileSync } = require("fs");
 
 console.log(chalk.bold.hex("#00ffff")("[ PRIYANSH BOT ] » ") + chalk.bold.hex("#00ffff")("Starting..."));
 
