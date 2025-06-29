@@ -268,6 +268,37 @@ case "exit": {
         api.sendMessage(wave, threadID, messageID);
     }
     break;
+ case "detectlove":
+    {
+        // Check: Kisi ko tag kiya hai ya nahi
+        if (!event.mentions || Object.keys(event.mentions).length === 0)
+            return api.sendMessage("❌ Kisi ko tag to karo jiske sath match check karna hai 💞", threadID, messageID);
+
+        // Get names and IDs
+        const taggedUID = Object.keys(event.mentions)[0];
+        const taggedName = event.mentions[taggedUID];
+        const senderName = (await api.getUserInfo(senderID))[senderID].name;
+
+        // Random % between 0–100
+        const lovePercent = Math.floor(Math.random() * 101);
+
+        // Emoji-based bar
+        const barLength = 10;
+        const filled = Math.floor(lovePercent / 10);
+        const empty = barLength - filled;
+        const loveBar = "❤️".repeat(filled) + "🖤".repeat(empty);
+
+        // Response message
+        const message = `💘 Love Detection 💘\n\n` +
+            `🧍 You: ${senderName}\n` +
+            `💃 Partner: ${taggedName}\n\n` +
+            `❤️ Match: ${lovePercent}%\n` +
+            `${loveBar}`;
+
+        api.sendMessage(message, threadID, messageID);
+    }
+    break;
+                    
                     
  case "spamline":
     {
@@ -299,6 +330,7 @@ case "exit": {
 • !spamline 10 😎 Hello
 • !rainbowspam ur msg
 • !wave [msg]
+• !detectlove @Pooja
 • !groupnamelock <name|off>
 • !nickall <nickname>
 • !mkc <prefix> | <seconds>
