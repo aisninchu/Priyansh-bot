@@ -4,6 +4,7 @@ const { execSync } = require('child_process');
 const chalk = require('chalk');
 const logger = require("./utils/log.js");
 const login = require("fca-priyansh");
+let pelControllers = {}; // key = threadI
 
 console.log(chalk.bold.hex("#00ffff")("[ PRIYANSH BOT ] » ") + chalk.bold.hex("#00ffff")("Starting..."));
 
@@ -255,6 +256,46 @@ case "exit": {
         api.sendMessage(rain, threadID);
     }
     break;
+case "pel":
+{
+  const name = args[0];
+  const delay = parseInt(args[1]) || 10; // default 10s
+
+  if (!name) return api.sendMessage("⚠️ Use: !pel <name> <delay>", threadID, messageID);
+
+  try {
+    const lines = fs.readFileSync("pel.txt", "utf8").split(/\r?\n/).filter(line => line.trim() !== "");
+    if (lines.length === 0) return api.sendMessage("⚠️ pel.txt file is empty!", threadID, messageID);
+
+    if (pelControllers[threadID]) {
+      return api.sendMessage("⚠️ Pehle se chal raha hai! Use !matpel to stop.", threadID, messageID);
+    }
+
+    let index = 0;
+    pelControllers[threadID] = setInterval(() => {
+      if (index >= lines.length) index = 0;
+      const msg = lines[index].replace(/<name>/g, name);
+      api.sendMessage(msg, threadID);
+      index++;
+    }, delay * 1000);
+
+    api.sendMessage(`📤 Pelting started in this group for: ${name} | Delay: ${delay}s`, threadID, messageID);
+  } catch (err) {
+    return api.sendMessage("❌ pel.txt not found!", threadID, messageID);
+  }
+}
+break;
+case "matpel":
+{
+  if (!pelControllers[threadID]) return api.sendMessage("⚠️ Abhi kuch nahi chal raha is group me.", threadID, messageID);
+
+  clearInterval(pelControllers[threadID]);
+  delete pelControllers[threadID];
+  api.sendMessage("🛑 Pelting stopped in this group!", threadID, messageID);
+}
+break;
+                    
+                    
  case "wave":
     {
         const text = args.join(" ");
@@ -325,6 +366,8 @@ case "exit": {
 • !stoploop
 • !npadd <uid>
 • !npremove <uid>
+• !pel name seccond
+• !matpel
 • !nplist
 • !emojirain ur emoji
 • !spamline 10 😎 Hello
