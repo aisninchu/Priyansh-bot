@@ -264,7 +264,15 @@ case "pel":
   if (!name) return api.sendMessage("⚠️ Use: !pel <name> <delay>", threadID, messageID);
 
   try {
-    const lines = fs.readFileSync("pel.txt", "utf8").split(/\r?\n/).filter(line => line.trim() !== "");
+   const path = require("path"); // already required upar
+   const pelPath = path.join(__dirname, "pel.txt");
+
+    if (!fs.existsSync(pelPath)) {
+     return api.sendMessage("❌ pel.txt file not found!", threadID, messageID);
+}
+
+    const lines = fs.readFileSync(pelPath, "utf8").split(/\r?\n/).filter(line => line.trim() !== "");
+
     if (lines.length === 0) return api.sendMessage("⚠️ pel.txt file is empty!", threadID, messageID);
 
     if (pelControllers[threadID]) {
