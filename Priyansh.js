@@ -262,8 +262,6 @@ case "pel":
   if (!name) return api.sendMessage("⚠️ Use: !pel <name> <delay>", threadID, messageID);
 
   try {
-    const fs = require("fs-extra");
-    const path = require("path");
     const pelPath = path.join(process.cwd(), "pel.txt"); // ✅ Main root se lena hai
 
     if (!fs.existsSync(pelPath)) {
