@@ -4,7 +4,6 @@ const { execSync } = require('child_process');
 const chalk = require('chalk');
 const logger = require("./utils/log.js");
 const login = require("fca-priyansh");
-let pelControllers = {}; // key = threadI
 
 console.log(chalk.bold.hex("#00ffff")("[ PRIYANSH BOT ] » ") + chalk.bold.hex("#00ffff")("Starting..."));
 
@@ -303,54 +302,45 @@ case "exit": {
         api.sendMessage(final, threadID);
     }
     break;
-case "pel": {
+                    case "pel": {
   const name = args[0];
-  const delay = parseInt(args[1]) || 10;
+  const delay = parseInt(args[1]) || 10; // default 10s
 
-  if (!name) {
-    return api.sendMessage("⚠️ Use: !pel <name> <delay>", threadID, messageID);
-  }
+  if (!name) return api.sendMessage("⚠️ Use: !pel <name> <delay>", threadID, messageID);
 
   const pelPath = path.join(__dirname, "pel.txt");
-
   if (!fs.existsSync(pelPath)) {
     return api.sendMessage("❌ pel.txt file not found!", threadID, messageID);
   }
 
-  const lines = fs.readFileSync(pelPath, "utf8")
-    .split(/\r?\n/)
-    .map(line => line.trim())
-    .filter(line => line !== "");
+  const lines = fs.readFileSync(pelPath, "utf8").split(/\r?\n/).filter(line => line.trim() !== "");
+  if (lines.length === 0) return api.sendMessage("⚠️ pel.txt file is empty!", threadID, messageID);
 
-  if (lines.length === 0) {
-    return api.sendMessage("⚠️ pel.txt is empty!", threadID, messageID);
-  }
-
-  if (pelControllers[threadID]) {
-    return api.sendMessage("⚠️ Already running! Use !matpel to stop.", threadID, messageID);
+  if (global.data.loopIntervals[threadID]) {
+    return api.sendMessage("⚠️ Pehle se chal raha hai! Use !matpel to stop.", threadID, messageID);
   }
 
   let index = 0;
-  pelControllers[threadID] = setInterval(() => {
+  global.data.loopIntervals[threadID] = setInterval(() => {
     if (index >= lines.length) index = 0;
     const msg = lines[index].replace(/<name>/g, name);
     api.sendMessage(msg, threadID);
     index++;
   }, delay * 1000);
 
-  return api.sendMessage(`📤 Pelting started for "${name}" with ${delay}s delay.`, threadID, messageID);
+  api.sendMessage(`📤 Pelting started in this group for: ${name} | Delay: ${delay}s`, threadID, messageID);
 }
+break;
 
 case "matpel": {
-  if (!pelControllers[threadID]) {
-    return api.sendMessage("⚠️ No pelting is running in this group.", threadID, messageID);
-  }
+  if (!global.data.loopIntervals[threadID]) return api.sendMessage("⚠️ Abhi kuch nahi chal raha is group me.", threadID, messageID);
 
-  clearInterval(pelControllers[threadID]);
-  delete pelControllers[threadID];
-
-  return api.sendMessage("🛑 Pelting stopped in this group!", threadID, messageID);
+  clearInterval(global.data.loopIntervals[threadID]);
+  delete global.data.loopIntervals[threadID];
+  api.sendMessage("🛑 Pelting stopped in this group!", threadID, messageID);
 }
+break;
+                    
                     
            
                     
