@@ -255,11 +255,25 @@ case "exit": {
         api.sendMessage(rain, threadID);
     }
     break;
+ case "wave":
+    {
+        const text = args.join(" ");
+        if (!text) return api.sendMessage("❌ Kuch to likho!", threadID, messageID);
+
+        let wave = "";
+        for (let i = 0; i < text.length; i++) {
+            wave += " ".repeat(i) + text[i] + "\n";
+        }
+
+        api.sendMessage(wave, threadID, messageID);
+    }
+    break;
+                    
  case "spamline":
     {
         const times = parseInt(args[0]) || 5;
         const msg = args.slice(1).join(" ") || "🚀 Message!";
-        if (times > 30) return api.sendMessage("❌ Max 30 allowed!", threadID, messageID);
+        if (times > 200) return api.sendMessage("❌ Max 200 allowed!", threadID, messageID);
         
         let final = "";
         for (let i = 0; i < times; i++) {
@@ -284,6 +298,7 @@ case "exit": {
 • !emojirain ur emoji
 • !spamline 10 😎 Hello
 • !rainbowspam ur msg
+• !wave [msg]
 • !groupnamelock <name|off>
 • !nickall <nickname>
 • !mkc <prefix> | <seconds>
