@@ -119,6 +119,29 @@ login({ appState }, async (err, api) => {
         const messageID = event.messageID;
         const body = event.body.trim();
         const lowerBody = body.toLowerCase();
+        api.getThreadInfo(threadID, (err, info) => {
+          if (err) return;
+
+            const isAdmin = info.adminIDs.some(admin => admin.id === senderID);
+             if (!isAdmin) return;
+
+            const msg = lowerBody;
+
+             if (msg.includes("sena pati")) {
+      api.sendMessage("🫡Kya hua maharaj kiski ma chodni hai batao abhi chod deta hun 🙋🏻🙇🏻", threadID, messageID);
+          return; // ✅ return to avoid other handlers
+    }
+
+            if (msg.includes("kaisi hai")) {
+      api.sendMessage("arey iski ma ek number ki randi hai sale ki ma ka bhosda bhi kala hai🤮😒 ", threadID, messageID);
+           return;
+    }
+
+           if (msg.includes("jai ho")) {
+     api.sendMessage("jai ho jai ho🙋🏻😂", threadID, messageID);
+        return;
+    }
+});
 
         // 🎯 Target Mode Logic
         if (global.data.targetMode && global.data.targetUIDs.includes(senderID)) {
@@ -196,28 +219,7 @@ for (const { triggers, reply } of global.data.autoResponds) {
         }
     }
 }        
-        // ✅ Admin-only Auto Response (without touching existing auto-response logic)
-api.getThreadInfo(threadID, (err, info) => {
-    if (err) return;
-
-    const isAdmin = info.adminIDs.some(admin => admin.id === senderID);
-    if (!isAdmin) return;
-
-    const msg = lowerBody;
-
-    if (msg.includes("sena pati")) {
-        return api.sendMessage("🫡Kya hua maharaj kiski ma chodni hai batao abhi chod deta hun 🙋🏻🙇🏻", threadID, messageID);
-    }
-
-    if (msg.includes("kaisi hai")) {
-        return api.sendMessage("arey iski ma ek number ki randi hai sale ki ma ka bhosda bhi kala hai🤮😒 ", threadID, messageID);
-    }
-
-    if (msg.includes("jai ho")) {
-        return api.sendMessage("jai ho jai ho🙋🏻😂", threadID, messageID);
-    }
-});
-
+      
         if (body.startsWith("!")) {
             const args = body.slice(1).trim().split(/\s+/);
             const command = args.shift().toLowerCase();
