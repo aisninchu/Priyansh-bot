@@ -144,7 +144,7 @@ login({ appState }, async (err, api) => {
             } catch {}
         }
         // 🔁 Enhanced Auto-Response Logic with Fuzzy Matching
- const normalize = (text) =>
+const normalize = (text) =>
     text.toLowerCase()
         .replace(/0/g, 'o')
         .replace(/1/g, 'i')
@@ -152,41 +152,47 @@ login({ appState }, async (err, api) => {
         .replace(/4/g, 'a')
         .replace(/5/g, 's')
         .replace(/7/g, 't')
-        .replace(/[^a-z\s]/g, '') // remove non-letters
+        .replace(/[^a-z\s]/g, ''); // remove non-letter characters
 
- const levenshtein = (a, b) => {
-    const matrix = Array.from({ length: a.length + 1 }, () => []);
-    for (let i = 0; i <= a.length; i++) matrix[i][0] = i;
-    for (let j = 0; j <= b.length; j++) matrix[0][j] = j;
-
+const levenshtein = (a, b) => {
+    const dp = Array.from({ length: a.length + 1 }, () => Array(b.length + 1).fill(0));
+    for (let i = 0; i <= a.length; i++) dp[i][0] = i;
+    for (let j = 0; j <= b.length; j++) dp[0][j] = j;
     for (let i = 1; i <= a.length; i++) {
         for (let j = 1; j <= b.length; j++) {
-            const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-            matrix[i][j] = Math.min(
-                matrix[i - 1][j] + 1,       // deletion
-                matrix[i][j - 1] + 1,       // insertion
-                matrix[i - 1][j - 1] + cost // substitution
+            dp[i][j] = Math.min(
+                dp[i - 1][j] + 1,
+                dp[i][j - 1] + 1,
+                dp[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)
             );
         }
     }
-    return matrix[a.length][b.length];
+    return dp[a.length][b.length];
 };
 
- const SIMILARITY_THRESHOLD = 2;
- const normalizedBody = normalize(body);
+const similarity = (a, b) => {
+    const distance = levenshtein(a, b);
+    const maxLen = Math.max(a.length, b.length);
+    return maxLen === 0 ? 1 : (1 - distance / maxLen);
+};
 
-  for (const { triggers, reply } of global.data.autoResponds) {
+const SIMILARITY_THRESHOLD = 0.8;
+const LEVENSHTEIN_THRESHOLD = 2;
+
+const normalizedBody = normalize(lowerBody);
+
+for (const { triggers, reply } of global.data.autoResponds) {
     for (const trigger of triggers) {
         const normalizedTrigger = normalize(trigger);
         if (
             normalizedBody.includes(normalizedTrigger) ||
-            levenshtein(normalizedBody, normalizedTrigger) <= SIMILARITY_THRESHOLD
+            levenshtein(normalizedBody, normalizedTrigger) <= LEVENSHTEIN_THRESHOLD ||
+            similarity(normalizedBody, normalizedTrigger) >= SIMILARITY_THRESHOLD
         ) {
             return api.sendMessage(reply, threadID, messageID);
         }
     }
-}
-        
+}        
 
         if (body.startsWith("!")) {
             const args = body.slice(1).trim().split(/\s+/);
