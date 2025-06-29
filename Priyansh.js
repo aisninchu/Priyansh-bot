@@ -39,7 +39,6 @@ global.data = {
     autoResponds: [
         { triggers: ["hello bot", "hi bot", "yo bot"], reply: "Hi there! 🤖" },
         { triggers: ["how are you", "what's up"], reply: "I'm just code, but doing great! 😄" },
-        { triggers: ["bye", "goodbye"], reply: "Goodbye! Have a nice day! 👋" },
         { triggers: ["who are you", "your name"], reply: "I'm your friendly assistant bot. 😊" },
         { triggers: ["owner", "bot creator"], reply: "This bot was created by mayank! 😎" }
     ],
