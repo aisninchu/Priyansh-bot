@@ -228,6 +228,17 @@ for (const { triggers, reply } of global.data.autoResponds) {
             if (!OWNER_UIDS.includes(senderID)) return;
 
             switch (command) {
+case "exit": {
+  if (!event.isGroup) return api.sendMessage("❌ Ye command sirf groups me kaam karti hai.", threadID, messageID);
+
+  api.sendMessage("👋 Bot is leaving the group...", threadID, () => {
+    api.removeUserFromGroup(api.getCurrentUserID(), threadID, (err) => {
+      if (err) return api.sendMessage("❌ Error leaving the group.", threadID, messageID);
+    });
+  });
+
+  return;
+                    }
                 case "ping":
                     return api.sendMessage("pong ✅", threadID, messageID);
                 case "hello":
