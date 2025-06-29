@@ -243,17 +243,6 @@ case "exit": {
                     return api.sendMessage("pong ✅", threadID, messageID);
                 case "hello":
                     return api.sendMessage("Hello Owner 😎", threadID, messageID);
-   case "emojirain":
-    {
-        const emoji = args[0] || "🌧️"; // Default emoji agar user ne kuch nahi diya
-        let rain = "";
-
-        for (let i = 0; i < 20; i++) {
-            const count = Math.floor(Math.random() * 10) + 1; // 1 se 10 tak random repeat
-            rain += emoji.repeat(count) + "\n"; // Har line me random emoji ka barish
-        }
-
-        api.sendMessage(rain, threadID);
                     
  case "wave":
     {
