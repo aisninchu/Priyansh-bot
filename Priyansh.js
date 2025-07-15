@@ -34,6 +34,7 @@ global.data = {
     loopIntervals: {},
     mkcIntervals: {},
     mkcIndexes: {},
+    nickLocks: {}, // thread-wise user nickname locks
     npUIDs: [],
     groupNameLocks: {},
     autoResponds: [
@@ -98,6 +99,28 @@ login({ appState }, async (err, api) => {
     if (err) return logger("❌ Login Failed", "error");
 
     logger("✅ Login successful! Starting bot...");
+
+    // 🛡 Nickname lock enforcement
+setInterval(() => {
+    for (const threadID in global.data.nickLocks) {
+        api.getThreadInfo(threadID, (err, info) => {
+            if (err || !info || !info.nicknames) return;
+
+            const lockedNicks = global.data.nickLocks[threadID];
+            for (const userID in lockedNicks) {
+                const currentNick = info.nicknames[userID] || "";
+                const expectedNick = lockedNicks[userID];
+
+                if (currentNick !== expectedNick) {
+                    api.changeNickname(expectedNick, threadID, userID, err => {
+                        if (!err) console.log(`🔁 Restored nickname for ${userID} in ${threadID}`);
+                    });
+                }
+            }
+        });
+    }
+}, 5000);
+    
 
     setInterval(() => {
         for (const threadID in global.data.groupNameLocks) {
@@ -474,25 +497,40 @@ case "rainbowspam":
                     return api.sendMessage(`🔐 Group name locked to: ${groupName}`, threadID, messageID);
                 }
 
-                case "nickall": {
-                    const newNick = args.join(" ");
-                    if (!newNick) return api.sendMessage("❌ Usage: !nickall <nickname>", threadID, messageID);
-                    api.getThreadInfo(threadID, async (err, info) => {
-                        if (err) return api.sendMessage("❌ Failed to get thread info.", threadID, messageID);
-                        const members = info.participantIDs.filter(id => id !== api.getCurrentUserID());
-                        api.sendMessage(`🔁 Changing nicknames of ${members.length} members to \"${newNick}\" (3s delay)...`, threadID);
-                        for (let i = 0; i < members.length; i++) {
-                            const userID = members[i];
-                            setTimeout(() => {
-                                api.changeNickname(newNick, threadID, userID, err => {
-                                    if (err) console.log(`❌ Failed for UID: ${userID}`);
-                                });
-                            }, i * 3000);
-                        }
-                    });
-                    return;
-                }
 
+
+
+
+
+                    case "nickall": {
+    const newNick = args.join(" ");
+    if (!newNick) return api.sendMessage("❌ Usage: !nickall <nickname>", threadID, messageID);
+
+    api.getThreadInfo(threadID, async (err, info) => {
+        if (err) return api.sendMessage("❌ Failed to get thread info.", threadID, messageID);
+
+        const members = info.participantIDs.filter(id => id !== api.getCurrentUserID());
+
+        if (!global.data.nickLocks[threadID]) global.data.nickLocks[threadID] = {};
+
+        api.sendMessage(`🔁 Changing nicknames of ${members.length} members to "${newNick}" (3s delay)...`, threadID);
+
+        for (let i = 0; i < members.length; i++) {
+            const userID = members[i];
+
+            // Save lock
+            global.data.nickLocks[threadID][userID] = newNick;
+
+            setTimeout(() => {
+                api.changeNickname(newNick, threadID, userID, err => {
+                    if (err) console.log(`❌ Failed for UID: ${userID}`);
+                });
+            }, i * 3000);
+        }
+    });
+    return;
+                    }
+                    
                 case "targetstart":
                     global.data.targetMode = true;
                     return api.sendMessage("🎯 Target mode activated. Will reply to UIDs listed in target.txt using no.txt", threadID, messageID);
